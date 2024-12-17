@@ -1,10 +1,18 @@
 # PDF-clipper
   ## package installation
-    - ```pip install opencv-python```
-    - ```pip install pymupdf```
+    ```bash
+    pip install opencv-python
+    ```
+    ``` bash 
+    pip install pymupdf
+    ```
   ## run programs
-    - ```cd pdf-clipper```
-    - ```python app.py```
+    ``` bash 
+    cd pdf-clipper
+    ```
+    ``` bash 
+    cd python app.py
+    ```
   # outcomes
     - feed input file as document.pdf in src folder
     - run programs
