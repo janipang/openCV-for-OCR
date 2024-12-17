@@ -1,12 +1,11 @@
-# openCV-for-OCR
-1. PDF-clipper
-  package installation
+# PDF-clipper
+  ## package installation
     - pip install opencv-python
     - pip install pymupdf
-  run programs
+  ## run programs
     - cd pdf-clipper
     - python app.py
-  outcomes
+  # outcomes
     - feed input file as document.pdf in src folder
     - run programs
     - select area of text field then press "space" or "enter"
