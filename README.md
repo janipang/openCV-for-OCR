@@ -13,7 +13,7 @@ cd pdf-clipper
 ``` bash 
 cd python app.py
 ```
-  # outcomes
+  ## outcomes
 - feed input file as document.pdf in src folder
 - run programs
 - select area of text field then press "space" or "enter"
