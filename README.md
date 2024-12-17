@@ -3,16 +3,20 @@
     ```bash
     pip install opencv-python
     ```
+
     ``` bash 
     pip install pymupdf
     ```
+    
   ## run programs
     ``` bash 
     cd pdf-clipper
     ```
+
     ``` bash 
     cd python app.py
     ```
+
   # outcomes
     - feed input file as document.pdf in src folder
     - run programs
