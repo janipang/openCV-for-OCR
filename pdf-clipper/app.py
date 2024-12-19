@@ -8,7 +8,9 @@ def pdf_to_jpg(pdf_path, output_folder):
     # Convert each page to an image
     for page_number in range(len(pdf_document)):
         page = pdf_document.load_page(page_number)
-        pixmap = page.get_pixmap()
+        pixmap = page.get_pixmap(dpi=300)
+        # get_pixmap(*, matrix=pymupdf.Identity, dpi=None, colorspace=pymupdf.csRGB, clip=None, alpha=False, annots=True)
+        # to increase image resolution -> https://pymupdf.readthedocs.io/en/latest/recipes-images.html#how-to-increase-image-resolution
 
         # Save the image
         output_path = f"{output_folder}/document_page_{page_number + 1}.jpg"
@@ -16,31 +18,16 @@ def pdf_to_jpg(pdf_path, output_folder):
         print(f"Saved: {output_path}")
 
     pdf_document.close()
-                    
-def resize_to_70vh(image, vh_percent=0.7):
-    """Resize the image proportionally to 70% of the screen height."""
-    screen_height = 1080  # Default fallback if screen resolution cannot be detected
 
-    # Get screen resolution dynamically
-    screen_height = int(cv2.getWindowImageRect("Temp")[3]) if cv2.namedWindow("Temp") else 1080
-    max_height = int(screen_height * vh_percent)
-
-    # Resize only if the image is taller than the target height
-    h, w = image.shape[:2]
-    if h > max_height:
-        scale = max_height / h
-        new_width = int(w * scale)
-        new_height = int(h * scale)
-        return cv2.resize(image, (new_width, new_height))
-    return image
-
-def main():
-    pdf_to_jpg("./src/document.pdf", "./src")
-    input_image_path = "./src/document_page_1.jpg"  # Input file
-    output_image_path = "./src/cropped_field.jpg"  # Output file
+def show_selecting_window(input_path, output_path):
+    '''
+    input - path of raw document image file (png/jpg/jpeg)
+    output - path for folder to save cropped data of selected fields
+    '''
+    
 
     # Load the input image
-    image = cv2.imread(input_image_path)
+    image = cv2.imread(input_path)
     if image is None:
         print("Error: Unable to load file.jpg")
         return
@@ -65,10 +52,12 @@ def main():
         h_original = int(h * scale_y)
         
         cropped_image = image[y_original:y_original+h_original, x_original:x_original+w_original]
+        cropped_coord = [((x_original,y_original),(x_original + w_original, y_original + h_original)) ]
+        print(f"field coordinates: {cropped_coord}")
 
         # Save the cropped image
-        cv2.imwrite(output_image_path, cropped_image)
-        print(f"Cropped image saved as {output_image_path}")
+        cv2.imwrite((output_path + "/cropped_field.jpg"), cropped_image)
+        print(f"Cropped image saved at {output_path}")
 
         # Display the cropped image
         cv2.imshow("Cropped Image", cropped_image)
@@ -76,6 +65,27 @@ def main():
 
     # Clean up
     cv2.destroyAllWindows()
+    
+def resize_to_70vh(image, vh_percent=0.7):
+    """Resize the image proportionally to 70% of the screen height."""
+    screen_height = 1080  # Default fallback if screen resolution cannot be detected
+
+    # Get screen resolution dynamically
+    screen_height = int(cv2.getWindowImageRect("Temp")[3]) if cv2.namedWindow("Temp") else 1080
+    max_height = int(screen_height * vh_percent)
+
+    # Resize only if the image is taller than the target height
+    h, w = image.shape[:2]
+    if h > max_height:
+        scale = max_height / h
+        new_width = int(w * scale)
+        new_height = int(h * scale)
+        return cv2.resize(image, (new_width, new_height))
+    return image
+
+def main():
+    pdf_to_jpg("./src/document.pdf", "./src")
+    show_selecting_window("./src/document_page_1.jpg", "./src")
 
 if __name__ == "__main__":
     main()
