@@ -1,4 +1,5 @@
 opencv-python
 # pdf2image
 pymupdf
-qt
+# qt
+os
