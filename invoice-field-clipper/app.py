@@ -11,7 +11,15 @@ def file_classification(file_name):
   elif file_name.starstwith("CA"):
     return "ca??"
   
-def convert_file_to_image(file_name, src_directory, target_dir = "./src/temp/raw-file-jpg", extension="jpg"):
+def check_document_type_by_name(file_name):
+  if file_name.startswith("INV"):
+    return "inv"
+  elif file_name.startswith("CA"):
+    return "ca"
+  else:
+    return "unk"
+  
+def convert_file_to_image(file_name, src_directory, document_type, target_dir = "./src/temp/raw-file-png", extension="png"):
   '''
   output file name format INVYYYYMMDDXXXX_1/n ; n = number of pages
   '''
@@ -24,7 +32,7 @@ def convert_file_to_image(file_name, src_directory, target_dir = "./src/temp/raw
       terget_file_name = f"{file_name.split('.')[0]}_{page_number+1}-{number_of_pages}.{extension}"
       page = file.load_page(page_number)
       pixmap = page.get_pixmap(dpi=300)
-      pixmap.save(target_dir + "/" + terget_file_name)
+      pixmap.save(f"{target_dir}/{document_type}/{terget_file_name}")
     file.close()
     
 
@@ -34,7 +42,8 @@ def extract_field_from_files(files_path):
 def main():
     files_name = scan_files("./src/raw-file")
     for file_name in files_name:
-      convert_file_to_image(file_name, "./src/raw-file")
+      document_type = check_document_type_by_name(file_name)
+      convert_file_to_image(file_name, "./src/raw-file", document_type)
       # match file_classification(file_name):
       #   case "invoice":
       #     break
