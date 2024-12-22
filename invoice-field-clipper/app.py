@@ -2,7 +2,6 @@ import os
 import fitz
 import cv2
 
-
 def scan_files(folder_path):
     return os.listdir(folder_path)
 
@@ -46,18 +45,37 @@ def convert_file_to_image(
         file.close()
 
 
-def extract_field_inv(src_directory, file_name):
-    image = cv2.imread(f"{src_directory}/{file_name}")
+def extract_field_inv(
+    src_directory, file_name, target_dir="./src/temp/snippet-data/inv", extension="png"
+):
+    image = cv2.imread(f"{src_directory}/{file_name}")  # image.shape -> (3508, 2481, 3)
     if image is None:
         print(f"Error: Unable to load '{src_directory}/{file_name}'")
         return
-    # print(image.shape)
-    # (3508, 2481, 3)
-    # new_image = resize_image(image)
-    # roi = cv2.selectROI(
-    #     "Drag On Field", new_image, fromCenter=False, showCrosshair=True
-    # )
-    # print(roi)
+
+    # process only first page of document
+    page_number = int(file_name.split("_")[1].split("-")[0])
+    if page_number > 1:
+        return
+
+    # GET DATA FROM HEADER FORMAT
+    position_data = get_field_position()
+    for key in position_data.keys():
+        for line in range(len(position_data[key])):
+            (x_start, y_start, width, height) = position_data[key][line]
+            # format: INV202411050003_ผู้ขาย_1-2
+            target_file_path = f"{target_dir}/{file_name.split('_')[0]}_{key}_{line}-{len(position_data[key])}.{extension}"
+            cv2.imencode(".png", image[y_start : y_start + height, x_start : x_start + width])[1].tofile(target_file_path)
+            
+            # not included thai char in file name
+            # cv2.imwrite(
+            #     target_file_path.encode('utf-8'),
+            #     image[y_start : y_start + height, x_start : x_start + width],
+            # )
+
+
+def extract_field_ca(src_directory, file_name):
+    pass
 
 
 def get_field_position(field="all"):
@@ -70,7 +88,7 @@ def get_field_position(field="all"):
         "อ้างอิง": [(1910, 514, 444, 46)],
         "เบอร์โทร": [(1910, 690, 470, 46)],
     }
-    
+
     # if resized with scale = 0.5
     data_resized = {
         "เลขที่": [(955, 121, 222, 23)],
@@ -84,10 +102,11 @@ def get_field_position(field="all"):
         case "all":
             return data
         case "เลขที่" | "วันที่" | "ครบกำหนด" | "ผู้ขาย" | "อ้างอิง" | "เบอร์โทร":
-          return data[field]
+            return data[field]
         case _:
-          return []
-          
+            return []
+
+
 def resize_image(image, scale=0.5):
     h, w = image.shape[:2]
     new_width = int(w * scale)
@@ -96,17 +115,17 @@ def resize_image(image, scale=0.5):
     return sized_image
 
 
-def extract_field_ca(src_directory, file_name):
-    pass
-
-
 def main():
+    # convert all files to image
     files_name = scan_files("./src/raw-file")
     for file_name in files_name:
-      document_type = check_document_type_by_name(file_name)
-      convert_file_to_image(file_name, "./src/raw-file", document_type)
-    # extract_field_inv("./src/temp/raw-file-png/inv", "INV202411130001_1-1.png")
+        document_type = check_document_type_by_name(file_name)
+        convert_file_to_image(file_name, "./src/raw-file", document_type)
 
+    # snippet header field from all image files
+    files_name = scan_files("./src/temp/raw-file-png/inv")
+    for file_name in files_name:
+        extract_field_inv("./src/temp/raw-file-png/inv", file_name)
 
 
 if __name__ == "__main__":
