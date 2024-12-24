@@ -8,13 +8,6 @@ RIGHT_SIDE = ((1884, 222), (2400, 1052))
 TEXT_COLOR_FADE_OFFSET =  120
 DOT_PER_LINE_OFFSET = 3
 LINE_HEIGHT_OFFSET = 10
-
-def resize_image(image, scale=0.5):
-    h, w = image.shape[:2]
-    new_width = int(w * scale)
-    new_height = int(h * scale)
-    sized_image = cv2.resize(image, (new_width, new_height))
-    return sized_image
   
 def isAllZero(dot_data):
   for dot in dot_data:
@@ -67,8 +60,5 @@ def main():
         dot_data = []
         line_finished = False
       
-      # print(dot, end=" ")
-
-
 if __name__ == "__main__":
     main()
