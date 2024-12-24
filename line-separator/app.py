@@ -1,6 +1,7 @@
 import os
 import fitz
 import cv2
+from lib import scan_files, convert_file_to_image, check_document_type_by_name
 
 HEADER_POSITION = ((1548, 222), (2400, 1052))
 LEFT_SIDE = ((1548, 222), (1856, 1052))
@@ -8,7 +9,11 @@ RIGHT_SIDE = ((1884, 222), (2400, 1052))
 TEXT_COLOR_FADE_OFFSET =  120
 DOT_PER_LINE_OFFSET = 3
 LINE_HEIGHT_OFFSET = 10
-  
+
+
+def get_filename_only(filename):
+  return filename.split("_")[0]
+
 def isAllZero(dot_data):
   for dot in dot_data:
     if dot > DOT_PER_LINE_OFFSET:
@@ -18,15 +23,15 @@ def isAllZero(dot_data):
 def lastNisZero(dot_data, n = LINE_HEIGHT_OFFSET):
   return isAllZero(dot_data[-n:])
 
-def save_line_image(image, y_start, y_stop, line_number):
-  cv2.imwrite(f"./src/temp/header-lines/line-{line_number + 1}.png", image[y_start: y_stop + 1])
+def save_line_image(image, y_start, y_stop, line_number, filename, target_dir ="./src/temp/header-lines/inv"):
+  os.makedirs(os.path.join(target_dir, filename), exist_ok=True)
+  cv2.imwrite(os.path.join(f"{target_dir}/{filename}/line-{line_number + 1}.png"), image[y_start: y_stop + 1])
   
 def get_header_image(image):
   ((x_start, y_start), (x_end, y_end)) = HEADER_POSITION
-  image[y_start:y_end, x_start:x_end]
-  return 
+  return image[y_start:y_end, x_start:x_end]
   
-def split_line(header_image):
+def split_line(header_image, filename):
     # variables
     line_start = 0
     line_stop = 0
@@ -61,17 +66,29 @@ def split_line(header_image):
       
       # save picture when the line passed
       if line_finished:
-        save_line_image(header_image, line_start, line_stop, lines_saved)
+        save_line_image(header_image, line_start, line_stop, lines_saved, filename)
         lines_saved += 1
         line_start = line_stop
         dot_data = []
         line_finished = False
 
 def main():
-  image = cv2.imread("./src/raw-file-png/INV202411080001_1-1.png")
-  header_image = get_header_image(image)
-  cv2.imwrite("./src/temp/header/INV202411080001_header.png", header_image)
-  split_line(header_image)
+  
+  # convert all files to image
+    files_name = scan_files("./src/raw-file")
+    for file_name in files_name:
+        document_type = check_document_type_by_name(file_name)
+        convert_file_to_image(file_name, "./src/raw-file", document_type)
+
+    # snippet header field from all image files
+    files_name = scan_files("./src/temp/raw-file-png/inv")
+    for file_name in files_name:
+      # process on first page only
+      if int(file_name.split("_")[1].split("-")[0]) == 1:
+        image = cv2.imread(f"./src/temp/raw-file-png/inv/{file_name}")
+        header_image = get_header_image(image)
+        cv2.imwrite(f"./src/temp/header/{get_filename_only(file_name)}_header.png", header_image)
+        split_line(header_image, get_filename_only(file_name))
       
 if __name__ == "__main__":
     main()
