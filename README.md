@@ -1,4 +1,4 @@
-# PDF-clipper
+# line-separator
   ## package installation
 ```bash
 pip install opencv-python
@@ -8,13 +8,12 @@ pip install pymupdf
 ```
   ## run programs
 ``` bash 
-cd pdf-clipper
+cd line-separator
 ```
 ``` bash 
 cd python app.py
 ```
   ## outcomes
-- feed input file as document.pdf in src folder
-- run programs
-- select area of text field then press "space" or "enter"
-- output saved as cropped_field.jpg in src folder 
+- feed input pdf files in src/raw-file folder
+- run program
+- output saved at src/temp/header-lines
