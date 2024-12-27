@@ -17,7 +17,6 @@ def convert_file_to_image(
     file_name,
     src_directory,
     document_type,
-    target_dir="./src/temp/raw-file-png",
     extension="png",
 ):
     """
@@ -29,8 +28,8 @@ def convert_file_to_image(
     else:
         number_of_pages = len(file)
         for page_number in range(number_of_pages):
-            terget_file_name = f"{file_name.split('.')[0]}_{page_number+1}-{number_of_pages}.{extension}"
+            target_file_name = f"{file_name.split('.')[0]}_{page_number+1}-{number_of_pages}.{extension}"
             page = file.load_page(page_number)
             pixmap = page.get_pixmap(dpi=300)
-            pixmap.save(f"{target_dir}/{document_type}/{terget_file_name}")
+            pixmap.save(f"./src/temp/{document_type}/raw-file-png/{target_file_name}")
         file.close()
