@@ -8,7 +8,7 @@ pip install pymupdf
 ```
   ## run programs
 ``` bash 
-cd line-separator
+cd docs-head-reader
 ```
 ``` bash 
 cd python app.py
