@@ -23,15 +23,16 @@ def isAllZero(dot_data):
 def lastNisZero(dot_data, n = LINE_HEIGHT_OFFSET):
   return isAllZero(dot_data[-n:])
 
-def save_line_image(image, y_start, y_stop, line_number, filename, target_dir ="./src/temp/header-lines/inv"):
-  os.makedirs(os.path.join(target_dir, filename), exist_ok=True)
-  cv2.imwrite(os.path.join(f"{target_dir}/{filename}/line-{line_number + 1}.png"), image[y_start: y_stop + 1])
+def save_line_image(image, y_start, y_stop, line_number, filename, document_type):
+  target_dir = f"./src/temp/{document_type}/lines/{filename}/header"
+  os.makedirs(target_dir, exist_ok=True)
+  cv2.imwrite(os.path.join(f"{target_dir}/line-{line_number + 1}.png"), image[y_start: y_stop + 1])
   
 def get_header_image(image):
   ((x_start, y_start), (x_end, y_end)) = HEADER_POSITION
   return image[y_start:y_end, x_start:x_end]
   
-def split_line(header_image, filename):
+def split_line(header_image, filename, document_type):
     # variables
     line_start = 0
     line_stop = 0
@@ -66,7 +67,7 @@ def split_line(header_image, filename):
       
       # save picture when the line passed
       if line_finished:
-        save_line_image(header_image, line_start, line_stop, lines_saved, filename)
+        save_line_image(header_image, line_start, line_stop, lines_saved, filename, document_type)
         lines_saved += 1
         line_start = line_stop
         dot_data = []
@@ -89,7 +90,7 @@ def main():
         image = cv2.imread(f"./src/temp/{document_type}/raw-file-png/{file_name}")
         header_image = get_header_image(image)
         cv2.imwrite(f"./src/temp/{document_type}/header/{get_filename_only(file_name)}_header.png", header_image)
-        split_line(header_image, get_filename_only(file_name))
+        split_line(header_image, get_filename_only(file_name), document_type)
       
 if __name__ == "__main__":
     main()
