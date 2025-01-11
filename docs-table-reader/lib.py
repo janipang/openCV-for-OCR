@@ -63,20 +63,21 @@ def extract_dynamic_table(image_path, start_y=1010):
 def extract_text_lines_by_spacing(table_region, orig_filename="output", output_dir="extracted_lines"):
     # Image Preprocessing (Convert to B&W and Invert the color)
     gray = cv2.cvtColor(table_region, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
+    _, binary = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY_INV)
 
     # Get Width of Full table
     table_width = binary.shape[1]
 
     row_sums = np.sum(binary, axis=1) // 255  # Get number of white pixel in current y
-    threshold = 24
-    print(threshold, row_sums[200]) ## DEBUG
+    dark_pixel_threshold = 24
+    print(dark_pixel_threshold, row_sums[200]) ## DEBUG
     df = pd.DataFrame(row_sums, columns=['Column1'])
     print(df.describe()) ## DEBUG
     print(table_width) ## DEBUG
 
     lines = []
     last_y = -1
+    line_gap_threshold = 10  # Minimum gap between lines
     min_spacing = 24  # Minimum gap
     flag = False
 
@@ -85,11 +86,6 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
     # Combine unique values and counts into tuples and sort in descending order by count
     sorted_counts = sorted(zip(unique_values, counts), key=lambda x: x[0], reverse=True)
 
-    # Display the results
-    print("Value | Count")
-    for value, count in sorted_counts:
-        print(f"{value:5} | {count:5}")
-
     hrow = np.array(row_sums).reshape(-1, 1)
 
     histogram_line = np.hstack([hrow] * 4)
@@ -97,18 +93,21 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
     result = np.concatenate([binary, histogram_line], axis=1)
 
     pairs = []
+    gap_from_last_line = 0
     for y, row_sum in enumerate(row_sums):
-        if not flag and row_sum > threshold:
-            # Detect Start of the text
-            if len(lines) >= 1 and y < lines[-1][1] + 10:
-                continue
-            pairs.append(y)
+        if not flag and row_sum > dark_pixel_threshold:
+            # Detect Start of the text, and add padding-top
+            pairs.append(max(y - line_gap_threshold, 0))
             flag = not flag
-        if flag and row_sum <= threshold:
-            # Detech End of the text
+        if flag and row_sum <= dark_pixel_threshold:
+            if gap_from_last_line < line_gap_threshold:
+                gap_from_last_line += 1
+                continue
+            # Detech End of the text, with padding-bottom included
             pairs.append(y)
             lines.append(pairs)
             pairs = []
+            gap_from_last_line = 0
             flag = not flag
 
     # for y in lines:
@@ -117,13 +116,11 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
     os.makedirs(output_dir, exist_ok=True)
 
     line_num = 0
-    margin = 10
+    # no more margin here, I've added that in the previous step
     for i in range(len(lines)):
         start_y, end_y = lines[i][0], lines[i][1]
         if end_y - start_y < 10 :
             continue
-        start_y = max(0, start_y - margin)
-        end_y = min(end_y + margin, table_region.shape[0])  # Add margin to the bottom
         if start_y >= end_y:  # Skip invalid or empty rows
             print(f"Skipping invalid row: start_y={start_y}, end_y={end_y}")
             continue
@@ -133,8 +130,6 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
         line_num += 1
         output_path = os.path.join(output_dir, f"{orig_filename}_line_{line_num}.png")
         cv2.imwrite(output_path, line_img)
-        # print(f"Saved line {line_num}: {output_path}")
-    # cv2.imshow("binary", binary)
     print(f"Extracted {line_num} lines from the table.")
     return line_num
 
