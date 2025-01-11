@@ -63,7 +63,7 @@ def extract_dynamic_table(image_path, start_y=1010):
 def extract_text_lines_by_spacing(table_region, orig_filename="output", output_dir="extracted_lines"):
     # Image Preprocessing (Convert to B&W and Invert the color)
     gray = cv2.cvtColor(table_region, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
 
     # Get Width of Full table
     table_width = binary.shape[1]
@@ -133,7 +133,7 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
         line_num += 1
         output_path = os.path.join(output_dir, f"{orig_filename}_line_{line_num}.png")
         cv2.imwrite(output_path, line_img)
-        print(f"Saved line {line_num}: {output_path}")
+        # print(f"Saved line {line_num}: {output_path}")
     # cv2.imshow("binary", binary)
     print(f"Extracted {line_num} lines from the table.")
     return line_num
