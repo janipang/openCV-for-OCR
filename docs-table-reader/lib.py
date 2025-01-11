@@ -119,7 +119,7 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
     # no more margin here, I've added that in the previous step
     for i in range(len(lines)):
         start_y, end_y = lines[i][0], lines[i][1]
-        if end_y - start_y < 10 :
+        if end_y - start_y < (2 * line_gap_threshold) + 10 : #skip if that line is too small (10px)
             continue
         if start_y >= end_y:  # Skip invalid or empty rows
             print(f"Skipping invalid row: start_y={start_y}, end_y={end_y}")
