@@ -3,7 +3,6 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-import shutil
 
 def scan_files(folder_path):
     return os.listdir(folder_path)
