@@ -77,7 +77,7 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
 
     lines = []
     last_y = -1
-    line_gap_threshold = 10  # Minimum gap between lines
+    line_gap_threshold = 5  # Minimum gap between lines
     min_spacing = 24  # Minimum gap
     flag = False
 
