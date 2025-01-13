@@ -1,10 +1,7 @@
 # docs-head-reader
   ## package installation
 ```bash
-pip install opencv-python
-```
-``` bash 
-pip install pymupdf
+pip install opencv-python pymupdf
 ```
   ## run programs
 ``` bash 
@@ -18,20 +15,15 @@ cd python app.py
 - run program
 - output saved at src/temp/{document_type}/lines
   
-# docs-reader
+# docs-data-collector
   ## package installation
+  ** please install tesseract-ocr on your pc first **
 ```bash
-pip install opencv-python
-```
-``` bash 
-pip install pymupdf
-```
-``` bash 
-pip install pandas
+pip install opencv-python pymupdf pandas pytesseract pillow
 ```
   ## run programs
 ``` bash 
-cd docs-reader
+cd docs-data-collector
 ```
 ``` bash 
 cd python app.py
@@ -39,4 +31,4 @@ cd python app.py
   ## outcomes
 - feed input pdf files in src/raw-file folder
 - run program
-- output saved at src/temp/{document_type}/{filename}/lines
+- output saved at src/data
