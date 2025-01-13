@@ -2,10 +2,11 @@ import pytesseract
 import cv2
 import os
 import json
+import numpy as np
 from PIL import ImageEnhance, ImageFilter, Image
 
 def get_key_value_position(image):
-    gap_threshold = 80
+    gap_threshold = 40
 
     # position format: [ y_start, y_end ]
     position = []
@@ -42,9 +43,12 @@ def get_key_value_position(image):
     else:
         return position[0], (position[1][0], position[-1][1])
     
-def read_text_from_image(image):
+def read_text_from_image(int_array_2d):
+    uint8_array = np.array(int_array_2d).astype(np.uint8)
     custom_oem_psm_config = r'-l tha+end --psm 6'
-    return pytesseract.image_to_string(image, config=custom_oem_psm_config)
+    p_image = Image.fromarray(uint8_array)
+    print("Pillow image created successfully.")
+    return pytesseract.image_to_string(p_image, config=custom_oem_psm_config)
 
 def save_data_from_lines(input_dir, output_file):
     # get data
@@ -59,17 +63,19 @@ def save_data_from_lines(input_dir, output_file):
         value = ""
         position = get_key_value_position(image)
         if len(position) == 2:
-            key = read_text_from_image(image[position[0][0]:position[0][1]])
-            value = read_text_from_image(image[position[1][0]:position[1][1]])
+            cv2.imwrite("./src/temp/reading/key.png", image[:, position[0][0]:position[0][1]])
+            cv2.imwrite("./src/temp/reading/value.png", image[:, position[1][0]:position[1][1]])
+            key = read_text_from_image(image[:, position[0][0]:position[0][1]])
+            value = read_text_from_image(image[:, position[1][0]:position[1][1]])
             data[key] = value
         elif len(position) == 1:
             value = read_text_from_image(image[position[0][0]:position[0][1]])
             data[key] = data[key] + value
-    print(data)
+        print(data)
 
     # write to json
     json_object = json.dumps(data, indent=2)
-    with open(output_file, "w") as outfile:
-        outfile.write(json_object)
+    with open(output_file, "w", encoding="utf-8") as json_file:
+        json.dump(data, json_file, ensure_ascii=False, indent=2)
 
 
