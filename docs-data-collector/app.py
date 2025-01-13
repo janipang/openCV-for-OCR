@@ -3,6 +3,7 @@ import cv2
 import fitz
 from header_scanner import *
 from table_scanner import *
+from data_collector import *
 
 SUPPORTED_DOCUMENT_TYPE = ["inv", "ca"]
 
@@ -33,6 +34,7 @@ def main():
         table_img = extract_dynamic_table(f"./src/temp/{document_type}/raw-file-png/{file_name}", 1010)
         cv2.imwrite(f"./src/temp/{document_type}/table/{file_name}", table_img)
         extract_text_lines_by_spacing(table_img, file_name.split('.'[0]), output_dir=f"./src/temp/{document_type}/lines/{get_filename_only(file_name)}/table/{file_name.split('_')[1].split('-')[0]}")
+  # save_data_from_lines("./src/temp/inv/lines/INV202411050003/header","./src/data/inv-data.json")
 
 if __name__ == "__main__":
     main()
