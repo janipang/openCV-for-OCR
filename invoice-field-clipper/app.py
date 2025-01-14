@@ -30,7 +30,7 @@ def convert_file_to_image(
     extension="png",
 ):
     """
-    output file name format INVYYYYMMDDXXXX_1/n ; n = number of pages
+    output file name format INVYYYYMMDDXXXX_1-n ; n = number of pages
     """
     file = fitz.open(src_directory + "/" + file_name)
     if len(file) == 0:
@@ -63,13 +63,14 @@ def extract_field_inv(
     for key in position_data.keys():
         for line in range(len(position_data[key])):
             (x_start, y_start, width, height) = position_data[key][line]
+            
             # format: INV202411050003_ผู้ขาย_1-2
             target_file_path = f"{target_dir}/{file_name.split('_')[0]}_{key}_{line}-{len(position_data[key])}.{extension}"
-            cv2.imencode(".png", image[y_start : y_start + height, x_start : x_start + width])[1].tofile(target_file_path)
+            cv2.imencode(f".{extension}", image[y_start : y_start + height, x_start : x_start + width])[1].tofile(target_file_path)
             
-            # not included thai char in file name
+            # not included thai filename
             # cv2.imwrite(
-            #     target_file_path.encode('utf-8'),
+            #     target_file_path,
             #     image[y_start : y_start + height, x_start : x_start + width],
             # )
 
