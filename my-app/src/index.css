@@ -1,7 +1,29 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  display: flex;
+  justify-content: flex-start;
+  width: 100vw;
+  height: 100vh;
+}
+
+aside {
+  background-color: #053679;
+  padding: 1rem 0rem;
+}
+
+aside a {
+  padding: 0rem 2rem;
+  font-weight: 600;
+  background-color: inherit;
+  color: #FFFFFF;
+  text-decoration: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+aside a:hover {
+  background-color: #05306c;
 }
