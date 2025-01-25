@@ -36,7 +36,6 @@ cd python app.py
   
 # my-app
   ## package installation
-  ** please install tesseract-ocr on your pc first **
 ```bash
 npm install
 ```
