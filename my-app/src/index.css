@@ -71,7 +71,8 @@ article.process{
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0;
-  min-height: 100%;
+  height: 100%;
+  max-height: fit-content;
 }
 
 .section-content.recent-files{
@@ -98,7 +99,6 @@ article.process{
   gap: 0.5rem;
   width: 100%;
   max-height: 100%;
-  /* solved aspect-ratio unresponding issue */
   overflow-y: scroll;
 }
 
@@ -155,9 +155,7 @@ article.process{
 
 section.select{
   overflow-x: hidden;
-  overflow-y: visible;
   width: 100%;
-  border: 2px solid black;
 }
 
 .template-select{
@@ -165,6 +163,7 @@ section.select{
   aspect-ratio: 5/3;
   display: flex;
   overflow-x: scroll;
+  /* solving scroll don't work */
   gap: 1rem;
   background-color: #F5F9FC;
   border-radius: 0.75rem;
@@ -175,7 +174,23 @@ section.select{
 }
 
 .template-select .card{
-  /* solving width unresponding issue */
+  width: 70%;
+  flex-shrink: 0;
+  /* solved width unresponding issue */
+  padding: 1rem 1rem 0  1rem;
+}
+
+.template-select .card div{
+  height: 100%;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-rows: 1fr 3fr;
+  color: white;
+}
+
+.template-select .card span{
+  border: 2px solid white;
+  height: 100%;
 }
 
 .section-content span.input-name{  
