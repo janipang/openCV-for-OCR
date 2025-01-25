@@ -27,7 +27,7 @@
     "node-loader": "^2.0.0",
     "style-loader": "^3.0.0"
   },
-  "keywords": [],
+  "keywords": ["Invoice Automation"],
   "author": "pangj",
   "license": "MIT",
   "dependencies": {

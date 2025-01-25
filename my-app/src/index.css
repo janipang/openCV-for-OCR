@@ -72,8 +72,11 @@ article.process{
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0;
-  overflow-y: hidden;
   height: 100%;
+}
+
+.section-content.recent-files{
+  overflow-y: hidden;
 }
 
 .section-content h2{  
@@ -132,6 +135,12 @@ article.process{
   gap: 1rem;
 }
 
+.process .section-content h3{  
+  color: black;
+  font-weight: 600;
+  margin: 0;
+}
+
 .file-dropzone{
   aspect-ratio: 1 / 1;
   width: 100%;
@@ -147,6 +156,7 @@ article.process{
 section.select{
   overflow-x: hidden;
   width: 100%;
+  border: 2px solid black;
 }
 
 .template-select{
@@ -157,6 +167,7 @@ section.select{
   gap: 1rem;
   background-color: #F5F9FC;
   border-radius: 0.75rem;
+  border: 2px solid gray;
 }
 
 .template-select::-webkit-scrollbar {
@@ -178,7 +189,7 @@ section.select{
 }
 
 span.input-name input{
-  padding: 0.5rem 0.25rem;
+  padding: 0.5rem 0.75rem;
   background-color: #DFE6F7;
   border-radius: 0.5rem;
   width: 80%;
