@@ -32,3 +32,15 @@ cd python app.py
 - feed input pdf files in src/raw-file folder
 - run program
 - output saved at src/data
+- 
+  
+# my-app
+  ## package installation
+  ** please install tesseract-ocr on your pc first **
+```bash
+npm install
+```
+  ## run programs
+``` bash 
+npm start
+```
