@@ -163,7 +163,6 @@ section.select{
   aspect-ratio: 5/3;
   display: flex;
   overflow-x: scroll;
-  /* solving scroll don't work */
   gap: 1rem;
   background-color: #F5F9FC;
   border-radius: 0.75rem;
@@ -176,7 +175,6 @@ section.select{
 .template-select .card{
   width: 70%;
   flex-shrink: 0;
-  /* solved width unresponding issue */
   padding: 1rem 1rem 0  1rem;
 }
 
