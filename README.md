@@ -32,3 +32,15 @@ cd python app.py
 - feed input pdf files in src/raw-file folder
 - run program
 - output saved at src/data
+  
+# my-app
+  ## run app
+``` bash 
+cd my-app
+```
+```bash
+npm install
+```
+``` bash 
+npm start
+```
