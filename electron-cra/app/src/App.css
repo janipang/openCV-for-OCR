@@ -1,42 +1,224 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
+.div-body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  display: grid;
+  grid-template-columns: 1fr 6fr;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #EBF1FD;
+}
+
+aside {
+  background-color: #053679;
+  padding: 1rem 0rem;
+}
+
+aside a {
+  padding: 0rem 2rem;
+  font-weight: 600;
+  background-color: inherit;
+  color: #FFFFFF;
+  text-decoration: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+aside a:hover {
+  background-color: #05306c;
+}
+
+main {
+  flex-grow: 1;
+  display: grid;
+  grid-template: 1fr 2fr 2fr 4fr / 5fr 2fr;
+  gap: 1.5rem;
   padding: 2rem;
-  text-align: center;
+  overflow: hidden;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+main section, main article {
+  border-radius: 1rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+section.search{
+  grid-area: 1 / 1 / span 1 /span 1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+section.raw-files{
+  grid-area: 2 / 1 / span 1 /span 1;
 }
 
-.card {
-  padding: 2em;
+section.templates{
+  grid-area: 3 / 1 / span 1 /span 1;
 }
 
-.read-the-docs {
-  color: #888;
+section.recent-files{
+  grid-area: 4 / 1 / span 1 /span 1;
+}
+
+article.process{
+  grid-area: 1 / 2 / span 4 /span 1;
+}
+
+.section-content{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0;
+  height: 100%;
+  max-height: fit-content;
+}
+
+.section-content.recent-files{
+  overflow-y: hidden;
+}
+
+.section-content h2{  
+  color: black;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section-content span{  
+  display: flex;
+  flex-grow: 1;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.section-content span.list{  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: scroll;
+}
+
+span.list::-webkit-scrollbar {
+  display: none;
+}
+
+.card{
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  min-height: 5rem;
+  min-width: 7rem;
+  display: flex;
+  flex-direction: column;
+  background-color: cadetblue;
+}
+
+.list-item{
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  min-height: 2.5rem;
+  display: flex;
+  background-color: cadetblue;
+}
+
+article.process{
+  display: flex;
+  flex-direction: column;
+  border: 4px solid gray;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  background-color: #FFFFFF;
+  overflow: hidden;
+  gap: 1rem;
+}
+
+.process .section-content h3{  
+  color: black;
+  font-weight: 600;
+  margin: 0;
+}
+
+.file-dropzone{
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  background-color: #F5F9FC;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+}
+
+section.select{
+  overflow: hidden;
+  width: 100%;
+}
+
+.template-select{
+  width: 100%;
+  aspect-ratio: 5/3;
+  display: flex;
+  overflow-x: scroll;
+  gap: 1rem;
+  background-color: #F5F9FC;
+  border-radius: 0.75rem;
+}
+
+.template-select::-webkit-scrollbar {
+  display: none;
+}
+
+.template-select .card{
+  width: 70%;
+  flex-shrink: 0;
+  padding: 1rem 1rem 0  1rem;
+}
+
+.template-select .card div{
+  height: 100%;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-rows: 1fr 3fr;
+  color: white;
+}
+
+.template-select .card span{
+  border: 2px solid white;
+  height: 100%;
+}
+
+.section-content span.input-name{  
+  display: flex;
+  flex-grow: unset;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 0;
+}
+
+span.input-name input{
+  padding: 0.5rem 0.75rem;
+  background-color: #DFE6F7;
+  border-radius: 0.5rem;
+  width: 80%;
+  border: none;
+}
+
+span.input-name p{
+  padding: 0;
+  margin: 0;
+}
+
+button.submit{
+  background-color: #D6D8FE;
+  padding: 0.75rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  font-weight: 800;
+  border: none;
 }
