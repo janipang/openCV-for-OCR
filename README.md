@@ -33,14 +33,19 @@ cd python app.py
 - run program
 - output saved at src/data
   
-# my-app
-  ## run app
+# electron-cra
+  ## install dependencies
 ``` bash 
-cd my-app
-```
-```bash
+npm install
+cd app
 npm install
 ```
+  ## build react app
+```bash
+npm run build
+```
+  ## run electron app
 ``` bash 
-npm start
+cd ..
+npm run dev
 ```
