@@ -1,0 +1,25 @@
+{
+  "name": "electron-cra",
+  "version": "0.0.1",
+  "description": "dummt app",
+  "keywords": [
+    "electron",
+    "react",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "janipang",
+  "type": "commonjs",
+  "main": "main.js",
+  "homepage": ".",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "dev": "npx electronmon --trace-warnings ."
+  },
+  "dependencies": {
+    "electron": "^34.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
