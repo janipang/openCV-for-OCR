@@ -1,7 +1,9 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
+
 
 function createWindow() {
     let win = new BrowserWindow({
@@ -24,7 +26,7 @@ console.log(startUrl);
 app.whenReady().then(createWindow);
 
 ipcMain.handle("copy-files", async (_event, files) => {
-    const processFolder = path.join(app.getPath("userData"), "processing");
+    const processFolder = path.join(app.getPath("userData"), "user-datas", "raw-files");
     if (!fs.existsSync(processFolder)) fs.mkdirSync(processFolder);
 
     files.forEach((file) => {
@@ -33,4 +35,28 @@ ipcMain.handle("copy-files", async (_event, files) => {
     });
 
     return processFolder; // Return the processing folder path
+});
+
+ipcMain.handle("process-files", async (_event) => {
+    return new Promise((resolve, reject) => {
+        const pythonScript = path.join(__dirname, "resources", "app.py"); // Change if stored elsewhere
+
+        const pythonProcess = spawn("python", [pythonScript, processFolder]);
+
+        pythonProcess.stdout.on("data", (data) => {
+            console.log(`Python Output: ${data}`);
+        });
+
+        pythonProcess.stderr.on("data", (data) => {
+            console.error(`Python Error: ${data}`);
+        });
+
+        pythonProcess.on("close", (code) => {
+            if (code === 0) {
+                resolve("Processing completed");
+            } else {
+                reject(new Error("Processing failed"));
+            }
+        });
+    });
 });
