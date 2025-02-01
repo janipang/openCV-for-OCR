@@ -1,5 +1,5 @@
 import './App.css'
-// import FileUpload from './component/file-upload'
+import FileUpload from './component/file-upload'
 
 function App() {
 
@@ -60,8 +60,7 @@ function App() {
             </span>
           </section>
           <article className="process">
-            <div className="file-dropzone">select files here</div>
-            {/* <FileUpload /> */}
+            <FileUpload />
             <section className="select section-content">
               <h3>Select Template</h3>
               <div className="template-select">
