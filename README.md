@@ -35,7 +35,8 @@ cd python app.py
   
 # electron-cra
   ## install dependencies
-``` bash 
+``` bash
+cd electron-cra
 npm install
 cd app
 npm install
