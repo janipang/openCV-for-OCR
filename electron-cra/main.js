@@ -29,14 +29,17 @@ function createWindow() {
 app.whenReady().then(() => {
     createWindow();
 
-    ipcMain.handle("copy-files", async (_event, files) => {
-        console.log("hello: ", files);
-        const processFolder = path.join(app.getPath("userData"), "user-datas", "raw-files");
-        if (!fs.existsSync(processFolder)) fs.mkdirSync(processFolder);
+    ipcMain.handle("copy-files", async (_event, filepaths) => {
+        const destFolder = path.join(app.getPath("temp"), "invoice-data-gathering-app", "raw-files");
+        console.log(destFolder);
+        if (fs.existsSync(destFolder)) {
+            fs.rmdirSync(destFolder, { recursive: true });
+        }
+        fs.mkdirSync(destFolder, { recursive: true });
 
-        files.forEach((file) => {
-            const fileName = path.basename(file);
-            fs.copyFileSync(file, path.join(processFolder, fileName));
+        filepaths.forEach((filepath) => {
+            const fileName = path.basename(filepath);
+            fs.copyFileSync(filepath, path.join(destFolder, fileName));
         });
 
         return true; // Return the processing folder path

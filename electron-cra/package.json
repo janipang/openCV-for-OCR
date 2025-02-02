@@ -1,7 +1,7 @@
 {
-  "name": "electron-cra",
+  "name": "invoice-data-gathering-app",
   "version": "0.0.1",
-  "description": "dummt app",
+  "description": "dummy app",
   "keywords": [
     "electron",
     "react",
