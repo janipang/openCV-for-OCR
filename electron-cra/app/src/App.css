@@ -222,3 +222,8 @@ button.submit{
   font-weight: 800;
   border: none;
 }
+
+button:hover{
+  cursor: pointer;
+  background-color: #c1c3eb;
+}

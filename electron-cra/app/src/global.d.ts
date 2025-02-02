@@ -1,6 +1,6 @@
 export interface ElectronAPI {
     copyFiles: (paths: string[]) => Promise<boolean>;
-    ProcessFiles: () => Promise<boolean>;
+    processFiles: () => Promise<boolean>;
   }
   
   declare global {

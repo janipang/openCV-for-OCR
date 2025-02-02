@@ -3,6 +3,15 @@ import FileUpload from './component/file-upload'
 
 function App() {
 
+  async function onProcessFiles() {
+      try {
+          const result = await window.electron.processFiles();
+          console.log("Message sent, received in main process:", result);
+      } catch (error) {
+          console.error("Error in sending message:", error);
+      }
+  }
+
   return (
     <>
       <div className="div-body">
@@ -82,7 +91,7 @@ function App() {
                 <p>.csv</p>
               </span>
             </section>
-            <button className="submit">Process</button>
+            <button className="submit" onClick={() => onProcessFiles()}>Process</button>
           </article>
         </main>
       </div>
