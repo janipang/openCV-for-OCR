@@ -4,6 +4,15 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 
+const baseTempDir = path.join(app.getPath("temp"), "invoice-data-gathering-app");
+
+// Define folders
+const folders = {
+    base: baseTempDir,
+    raw: path.join(baseTempDir, "src", "raw-files"),
+    output: path.join(baseTempDir, "src", "output"),
+    temp: path.join(baseTempDir, "src", "temp")
+};
 
 function createWindow() {
     let win = new BrowserWindow({
@@ -30,26 +39,48 @@ app.whenReady().then(() => {
     createWindow();
 
     ipcMain.handle("copy-files", async (_event, filepaths) => {
-        const destFolder = path.join(app.getPath("temp"), "invoice-data-gathering-app", "raw-files");
-        console.log(destFolder);
-        if (fs.existsSync(destFolder)) {
-            fs.rmdirSync(destFolder, { recursive: true });
+
+        const inputFilesFolder = folders.raw
+        console.log(inputFilesFolder);
+
+        if (fs.existsSync(inputFilesFolder)) {
+            fs.rmSync(inputFilesFolder, { recursive: true, force: true });
         }
-        fs.mkdirSync(destFolder, { recursive: true });
+        fs.mkdirSync(inputFilesFolder, { recursive: true });
 
         filepaths.forEach((filepath) => {
             const fileName = path.basename(filepath);
-            fs.copyFileSync(filepath, path.join(destFolder, fileName));
+            fs.copyFileSync(filepath, path.join(inputFilesFolder, fileName));
         });
 
-        return true; // Return the processing folder path
+        return true;
     });
 
     ipcMain.handle("process-files", async (_event) => {
-        return new Promise((resolve, reject) => {
-            const pythonScript = path.join(__dirname, "resources", "app.py"); // Change if stored elsewhere
+        console.log("Processing files");
 
-            const pythonProcess = spawn("python", [pythonScript, processFolder]);
+        const pythonFileNames = ["app.py", "data_collector.py", "header_scanner.py", "table_scanner.py"];
+        pythonFileNames.forEach((fileName) => {
+            const filePath = path.join(__dirname, "resources", fileName);
+            fs.copyFileSync(filePath, path.join(folders.base, fileName));
+        });
+
+        const outputFolder = folders.output
+        if (fs.existsSync(outputFolder)) {
+            fs.rmSync(outputFolder, { recursive: true, force: true });
+        }
+        fs.mkdirSync(outputFolder, { recursive: true });
+        
+        const tempFolder = folders.temp
+        if (fs.existsSync(tempFolder)) {
+            fs.rmSync(tempFolder, { recursive: true, force: true });
+        }
+        fs.mkdirSync(destFolder, { recursive: true });
+
+        return new Promise((resolve, reject) => {
+            const pythonScript = path.join(folders.base, "app.py");
+
+            const pythonProcess = spawn("python", [pythonScript, folders.base]);
 
             pythonProcess.stdout.on("data", (data) => {
                 console.log(`Python Output: ${data}`);
@@ -73,6 +104,10 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+        const appTempFolder = folders.base
+        if (fs.existsSync(appTempFolder)) {
+            fs.rmSync(appTempFolder, { recursive: true, force: true });
+        }
         app.quit();
     }
 });
