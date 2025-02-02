@@ -9,7 +9,7 @@ const baseTempDir = path.join(app.getPath("temp"), "invoice-data-gathering-app")
 // Define folders
 const folders = {
     base: baseTempDir,
-    raw: path.join(baseTempDir, "src", "raw-files"),
+    raw: path.join(baseTempDir, "src", "raw-file"),
     output: path.join(baseTempDir, "src", "output"),
     temp: path.join(baseTempDir, "src", "temp")
 };
@@ -75,7 +75,7 @@ app.whenReady().then(() => {
         if (fs.existsSync(tempFolder)) {
             fs.rmSync(tempFolder, { recursive: true, force: true });
         }
-        fs.mkdirSync(destFolder, { recursive: true });
+        fs.mkdirSync(tempFolder, { recursive: true });
 
         return new Promise((resolve, reject) => {
             const pythonScript = path.join(folders.base, "app.py");
