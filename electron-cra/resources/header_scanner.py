@@ -1,6 +1,7 @@
 import os
 import fitz
 import cv2
+from custom_service import *
 
 TEXT_COLOR_FADE_OFFSET =  120
 DOT_PER_LINE_OFFSET = 3
@@ -62,7 +63,7 @@ def lastNisZero(dot_data, n = LINE_HEIGHT_OFFSET):
 def save_line_image(image, y_start, y_stop, line_number, filename, document_type):
   target_dir = f"./src/temp/{document_type}/lines/{filename}/header"
   os.makedirs(target_dir, exist_ok=True)
-  cv2.imwrite(os.path.join(f"{target_dir}/line-{line_number + 1}.png"), image[y_start: y_stop + 1])
+  exist_imwrite(os.path.join(f"{target_dir}/line-{line_number + 1}.png"), image[y_start: y_stop + 1])
   
 def get_header_image(image, mode):
   match mode:
