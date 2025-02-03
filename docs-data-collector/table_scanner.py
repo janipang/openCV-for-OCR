@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
+from custom_service import *
 
 def scan_files(folder_path):
     return os.listdir(folder_path)
@@ -128,7 +129,7 @@ def extract_text_lines_by_spacing(table_region, orig_filename="output", output_d
         line_img = table_region[start_y:end_y, :]  # Crop the line
         line_num += 1
         output_path = os.path.join(output_dir, f"line-{line_num}.png")
-        cv2.imwrite(output_path, line_img)
+        exist_imwrite(output_path, line_img)
     print(f"Extracted {line_num} lines from the table.")
     return line_num
 
