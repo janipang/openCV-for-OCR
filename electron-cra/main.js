@@ -36,6 +36,40 @@ function createWindow() {
   win.loadURL(startUrl);
 }
 
+function runCommand(command, args, cwd) {
+  return new Promise((resolve, reject) => {
+    const process = spawn(command, args, { cwd, shell: true });
+
+    process.stdout.on("data", (data) => console.log(`${command}: ${data}`));
+    process.stderr.on("data", (data) => console.error(`${command} error: ${data}`));
+
+    process.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${command} failed with exit code ${code}`));
+      }
+    });
+  });
+}
+
+async function runPythonApp() {
+  try {
+    console.log("Upgrading pip...");
+    await runCommand("python", ["-m", "pip", "install", "--upgrade", "pip"], folders.base);
+    
+    console.log("Upgraded pip. Installing dependencies...");
+    await runCommand("python", ["-m", "pip", "install", "-r", "requirements.txt"], folders.base);
+
+    console.log("Dependencies installed. Running app.py...");
+    await runCommand("python", [path.join(folders.base, "app.py")], folders.base);
+
+    console.log("✅ Processing completed!");
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+  }
+}
+
 app.whenReady().then(() => {
   createWindow();
 
@@ -53,6 +87,7 @@ app.whenReady().then(() => {
       const fileName = path.basename(filepath);
       fs.copyFileSync(filepath, path.join(rawFilesFolder, fileName));
     });
+    console.log("/ Copied Success.\n");
 
     return true;
   });
@@ -73,8 +108,10 @@ app.whenReady().then(() => {
       const filePath = path.join(__dirname, "resources", fileName);
       fs.copyFileSync(filePath, path.join(folders.base, fileName));
     });
+    console.log("/ Copied Success.\n");
 
     // create output folder
+    console.log("Creating working directories...");
     const outputFolder = folders.output;
     if (fs.existsSync(outputFolder)) {
       fs.rmSync(outputFolder, { recursive: true, force: true });
@@ -87,53 +124,9 @@ app.whenReady().then(() => {
       fs.rmSync(tempFolder, { recursive: true, force: true });
     }
     fs.mkdirSync(tempFolder, { recursive: true });
+    console.log("/ Created Success.\n");
 
-    // pip install dependencies
-    console.log("Installing Dependencies...");
-    const requirementsFile = path.join(folders.base, "requirements.txt");
-    const installDeps = spawn("pip", ["install", "-r", requirementsFile], {
-      shell: true,
-    });
-
-    installDeps.stdout.on("data", (data) => {
-      console.log(`pip install: ${data}`);
-    });
-
-    installDeps.stderr.on("data", (data) => {
-      console.error(`pip install error: ${data}`);
-    });
-
-    installDeps.on("close", (code) => {
-      if (code === 0) {
-        console.log("Dependencies installed. Running app.py...");
-
-        // run python app file
-        process_status = new Promise((resolve, reject) => {
-          const pythonScript = path.join(folders.base, "app.py");
-          const pythonProcess = spawn("python", [pythonScript, folders.base]);
-
-          pythonProcess.stdout.on("data", (data) => {
-            console.log(`Python Output: ${data}`);
-          });
-
-          pythonProcess.stderr.on("data", (data) => {
-            console.error(`Python Error: ${data}`);
-          });
-
-          pythonProcess.on("close", (code) => {
-            if (code === 0) {
-              resolve("Processing completed");
-            } else {
-              reject(new Error("Processing failed"));
-            }
-          });
-        });
-        return process_status;
-      } else {
-        console.error("Failed to install dependencies.");
-        return false;
-      }
-    });
+    runPythonApp({ base: folders.base });
   });
 });
 
