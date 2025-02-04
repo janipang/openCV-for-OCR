@@ -44,7 +44,7 @@ def convert_file_to_image(
             target_file_name = f"{file_name.split('.')[0]}_{page_number+1}-{number_of_pages}.{extension}"
             page = file.load_page(page_number)
             pixmap = page.get_pixmap(dpi=300)
-            pixmap.save(f"./src/temp/{document_type}/raw-file-png/{target_file_name}")
+            exist_save_pixmap(pixmap, f"./src/temp/{document_type}/raw-file-png/{target_file_name}")
         file.close()
 
 

@@ -5,7 +5,6 @@ from header_scanner import *
 from table_scanner import *
 from data_collector import *
 from custom_service import *
-
 SUPPORTED_DOCUMENT_TYPE = ["inv", "ca"]
 
 def main():

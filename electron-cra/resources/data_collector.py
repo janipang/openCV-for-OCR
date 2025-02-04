@@ -66,13 +66,13 @@ def save_data_from_lines(input_dir, output_file):
         position = get_key_value_position(image)
         print(position)
         if len(position) == 2:
-            exist_imwrite(f"./src/temp/reading/{file_name.split(".")[0]}-key.png", image[:, position[0][0]:position[0][1]])
-            exist_imwrite(f"./src/temp/reading/{file_name.split(".")[0]}-value.png", image[:, position[1][0]:position[1][1]])
+            exist_imwrite(f"./src/temp/reading/{file_name.split('.')[0]}-key.png", image[:, position[0][0]:position[0][1]])
+            exist_imwrite(f"./src/temp/reading/{file_name.split('.')[0]}-value.png", image[:, position[1][0]:position[1][1]])
             key = read_text_from_image(image[:, position[0][0]:position[0][1]])
             value = read_text_from_image(image[:, position[1][0]:position[1][1]])
             data[key] = value
         elif len(position) == 1:
-            exist_imwrite(f"./src/temp/reading/{file_name.split(".")[0]}-value.png", image[:, position[0][0]:position[0][1]])
+            exist_imwrite(f"./src/temp/reading/{file_name.split('.')[0]}-value.png", image[:, position[0][0]:position[0][1]])
             value = read_text_from_image(image[:, position[0][0]:position[0][1]])
             data[key] = data[key] + value
     print(data)
