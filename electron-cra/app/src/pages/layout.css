@@ -1,0 +1,17 @@
+.div-body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+      Arial, sans-serif;
+    display: grid;
+    grid-template-columns: 1fr 6fr;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #EBF1FD;
+  }
+  
+  main {
+    height: 100%;
+    width: 100%;
+  }
+  

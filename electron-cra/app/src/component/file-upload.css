@@ -1,0 +1,28 @@
+
+.file-dropzone{
+    width: 100%;
+    background-color: #F5F9FC;
+    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .file-dropzone input{
+    display: none
+  }
+
+  .file-dropzone label{
+    height: 200px;
+    width: 350px;
+    border-radius: 6px;
+    border: 1px dashed #C4C4C4;
+    background-color: #F5F9FC;
+    color: #000000;
+  }
+
+  .file-dropzone label:hover{
+    cursor: pointer;
+  }
