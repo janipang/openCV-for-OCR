@@ -13,6 +13,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="recent" element={<RecentPage />} />
+          <Route path="template" element={<RecentPage />} />
         </Route>
       </Routes>
     </HashRouter>

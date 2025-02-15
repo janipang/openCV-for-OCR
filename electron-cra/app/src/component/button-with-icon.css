@@ -1,0 +1,8 @@
+button{
+    border-radius: var(--button-rounding);
+    padding: var(--button-padding-y) var(--button-padding-y);
+}
+
+button:hover{
+
+}
