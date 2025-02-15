@@ -1,8 +1,19 @@
 button{
     border-radius: var(--button-rounding);
     padding: var(--button-padding-y) var(--button-padding-y);
+    gap: var(--button-gap);
+    background-color: var(--dark-blue);
+    color: var(--white);
+    display: flex;
+    box-shadow: var(--down-medium-shadow);
 }
 
 button:hover{
+    background-color: var(--navy);
+    cursor: pointer;
+}
 
+button p{
+    font-weight: var(--medium-font-weight);
+    font-size: var(--small-font-size);
 }
