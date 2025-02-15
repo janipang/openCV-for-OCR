@@ -30,13 +30,25 @@ export default function FileUpload() {
     // }
 
     return (
-        <div className="file-dropzone">
+        <div className="file-upload">
+            <span>
+                <p className='field-name'>Select Template</p>
+                <div>
+                    <button>template1</button>
+                    <button>template2</button>
+                    <button>template3</button>
+                </div>
+            </span>
             <input id="file-input" type="file" multiple onChange={(e) => {
                 const files = e.target.files;
                 if (files) {
                     handleFileUpload(Array.from(files));
                 }
             }} />
+            {/* @ts-expect-error */}
+            <input directory="" webkitdirectory="" type="file" />
+            {/* this damn here by the lazy developer */}
+            {/* https://stackoverflow.com/questions/71444475/webkitdirectory-in-typescript-and-react */}
             <label htmlFor="file-input">Select Files to Process</label>
         </div>
     )
