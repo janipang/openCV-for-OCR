@@ -1,4 +1,4 @@
-article {
+/* article {
     display: grid;
     grid-template: 1fr 2fr 2fr 4fr / 5fr 2fr;
     gap: 1.5rem;
@@ -74,4 +74,4 @@ span.list::-webkit-scrollbar {
   min-height: 2.5rem;
   display: flex;
   background-color: cadetblue;
-}
+} */

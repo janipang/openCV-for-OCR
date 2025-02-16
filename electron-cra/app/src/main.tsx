@@ -4,7 +4,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/home';
 import RecentPage from './pages/recent';
 import Layout from './pages/layout';
-import './index.css';
+import './main.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
