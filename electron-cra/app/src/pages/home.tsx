@@ -1,6 +1,7 @@
 import './home.css'
 import TemplateSelect from '../component/template-select';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+// import { ipcRenderer } from 'electron';
 import Template from '../types/template';
 
 export default function HomePage() {
@@ -12,9 +13,21 @@ export default function HomePage() {
     ]
 
     const [template, setTemplate] = useState<Template>(templates[0]);
-    const [inputFilePaths, setInputFilePaths] = useState<File[]>();
-    const [outputDir, setOutputDir] = useState<string>("");
-    const [outputFileName, setOutputFileName] = useState<string>("");
+    // const [inputFilePaths, setInputFilePaths] = useState<File[]>();
+    // const [outputDir, setOutputDir] = useState<string>("");
+    // const [outputFileName, setOutputFileName] = useState<string>("");
+    const [message, setMessage] = useState<string | null>(null);
+    
+    // useEffect(() => {
+    //     ipcRenderer.on('process-update', (_, fileName) => {
+    //         setMessage(`File Processed: ${fileName}`);
+    //         console.log(message)
+    //     });
+    
+    //     return () => {
+    //       ipcRenderer.removeAllListeners('process-update');
+    //     };
+    //   }, []);
     
     // const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     //     if (!event.target.files) return;

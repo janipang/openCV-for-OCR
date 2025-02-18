@@ -40,7 +40,18 @@ function runCommand(command, args, cwd) {
   return new Promise((resolve, reject) => {
     const process = spawn(command, args, { cwd, shell: true });
 
-    process.stdout.on("data", (data) => console.log(`${command}: ${data}`));
+    process.stdout.on("data", (data) => {
+      console.log(`${command}: ${data}`)
+      const message = data.toString().trim();
+      const parts = message.split(':');
+      if (parts[0] == 'process-update') {
+        if (parts[1] == 'file-success') {
+          console.log('Extracted Data:', parts[2]);
+          mainWindow.webContents.send('process-update', parts[2]);
+        }
+      }
+    });
+
     process.stderr.on("data", (data) => console.error(`${command} error: ${data}`));
 
     process.on("close", (code) => {
@@ -57,12 +68,13 @@ async function runPythonApp() {
   try {
     console.log("Upgrading pip...");
     await runCommand("python", ["-m", "pip", "install", "--upgrade", "pip"], folders.base);
-    
+
     console.log("Upgraded pip. Installing dependencies...");
-    await runCommand("python", ["-m", "pip", "install", "-r", "requirements.txt"], folders.base);
+    await runCommand("python", ["-m", "pip", "install", "-r", "require ments.txt"], folders.base);
 
     console.log("Dependencies installed. Running app.py...");
-    await runCommand("python", [path.join(folders.base, "app.py")], folders.base);
+    // await runCommand("python", [path.join(folders.base, "app.py")], folders.base);
+    await runCommand("python", [path.join(folders.base, "communication.py")], folders.base);
 
     console.log("✅ Processing completed!");
   } catch (error) {
