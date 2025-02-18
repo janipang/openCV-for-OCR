@@ -1,9 +1,35 @@
 import './home.css'
 import TemplateSelect from '../component/template-select';
-// import { useState } from 'react';
+import { useState } from 'react';
+import Template from '../types/template';
 
 export default function HomePage() {
 
+    const templates: Template[] = [
+        { id: "bo001", name: "template1", image: "https://i.pinimg.com/736x/ad/2d/45/ad2d4570c8a6f58c4e62fc0d2851b9ac.jpg", accepted_field: [1,3,5,7,9,10] },
+        { id: "bo002", name: "template2", image: "https://th.bing.com/th/id/OIP.BADqZVZnDV9TbOI1Ws-7nAHaHa?rs=1&pid=ImgDetMain", accepted_field: [1,3,5,7,9,10] },
+        { id: "bo003", name: "template3", image: "https://img.freepik.com/premium-photo/cartoon-scene-scene-with-person-monster-with-pond-background_869640-43707.jpg", accepted_field: [1,3,5,7,9,10] }
+    ]
+
+    const [template, setTemplate] = useState<Template>(templates[0]);
+    const [inputFilePaths, setInputFilePaths] = useState<File[]>();
+    const [outputDir, setOutputDir] = useState<string>("");
+    const [outputFileName, setOutputFileName] = useState<string>("");
+    
+    // const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     if (!event.target.files) return;
+      
+    //     const uploadedFiles = Array.from(event.target.files);
+    //     const tempPaths = await Promise.all(
+    //       uploadedFiles.map(async (file) => {
+    //         // Simulate moving the file to a temp location
+    //         const tempPath = await saveToTempFolder(file); // Your logic here
+    //         return tempPath;
+    //       })
+    //     );
+      
+    //     setInputFilePaths(tempPaths);
+    //   };
     // async function onProcessFiles() {
     //     try {
     //         const result = await window.electron.processFiles();
@@ -30,6 +56,7 @@ export default function HomePage() {
     //     // "D:/projects/openCV-for-OCR/src/project-docs-1/INV202411050003.pdf",
     //     // "D:/projects/openCV-for-OCR/src/project-docs-1/INV202411050004.pdf",
     // ]
+    
     // async function onSelectFiles(paths: string[]) {
     //     try {
     //         const result = await window.electron.copyFiles(paths);
@@ -45,7 +72,7 @@ export default function HomePage() {
                 <section className="selection">
 
                     {/* template select component */}
-                    <TemplateSelect />
+                    <TemplateSelect templates={templates} currentTemplate={template} setTemplate={setTemplate}/>
                     <div className="wide-card">
                         <p>Select Files or Folder</p>
                         <span className="button-group">
