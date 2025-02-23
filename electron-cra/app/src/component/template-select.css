@@ -20,13 +20,17 @@
     color: var(--black);
 }
 
-.template-selector span.tab-group{
-    display: flex;
-    justify-content: space-between;
-    gap: var(--template-tab-gap);
+.template-selector select{
+    padding: var(--button-padding-y) var(--button-padding-x);
+    border-radius: var(--button-rounding);
+    border: 2px solid var(--dark-blue);
+    background-color: var(--white);
+    color: var(--dark-blue);
+    font-size: var(--small-font-size);
+    font-weight: var(--medium-font-weight);
 }
 
-.template-selector button.tab-item{
+.template-selector option{
     padding: var(--button-padding-y) var(--button-padding-x);
     border-radius: var(--button-rounding);
     background-color: var(--dark-blue);

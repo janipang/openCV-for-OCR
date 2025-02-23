@@ -1,32 +1,44 @@
-import Template from '../types/template';
-import './template-select.css'
+import Template from "../types/template";
+import "./template-select.css";
 
 interface TemplateProps {
-    templates: Template[];
-    currentTemplate: Template;
-    setTemplate: (template: Template) => void;
+  templates: Template[];
+  currentTemplate: Template;
+  setTemplate: (template: Template) => void;
 }
-export default function TemplateSelect({templates, currentTemplate, setTemplate}: TemplateProps) {
+export default function TemplateSelect({
+  templates,
+  currentTemplate,
+  setTemplate,
+}: TemplateProps) {
+  function handleTemplateChange(template_name: string) {
+    console.log(template_name);
+    const selected_template = templates.find(
+      (template) => template.name === template_name
+    ) as Template;
+    setTemplate(selected_template);
+  }
 
+  return (
+    <div className="template-selector selector">
+      <span className="top-bar">
+        <h2 className="field-name">Select Template</h2>
+          <select
+            name="template-select"
+            id="select-box"
+            onChange={(e) => handleTemplateChange(e.target.value)}
+          >
+            {templates.map((template) => (
+              <option value={template.name}>{template.name}</option>
+            ))}
+          </select>
+      </span>
 
-    return (
-        <div className="template-selector selector">
-            <span className="top-bar">
-                <h2 className="field-name">Select Template</h2>
-                <span className='tab-group'>
-                    {
-                        templates.map((template) => (
-                            <button className='tab-item' onClick={() => setTemplate(template)} >{template.name}</button>
-                        ))
-                    }
-                </span>
-            </span>
-
-            <div className="frame">
-                <div className='picture'>
-                    <img src={currentTemplate.image} />
-                </div>
-            </div>
+      <div className="frame">
+        <div className="picture">
+          <img src={currentTemplate.image} />
         </div>
-    );
+      </div>
+    </div>
+  );
 }

@@ -99,8 +99,8 @@ export default function HomePage() {
                                 Select Files
                             </label>
                             {/* @ts-expect-error */}
-                            <input directory="" webkitdirectory="" type="file" />
-                            <label htmlFor="file-input" className="file-label">
+                            <input id="folder-input" directory="" webkitdirectory="" type="file" />
+                            <label htmlFor="folder-input" className="file-label">
                                 Select Folder
                             </label>
                             {/* this damn here by the lazy developer */}
@@ -110,8 +110,8 @@ export default function HomePage() {
                     <div className="wide-card">
                         <p>Select Output Folder</p>
                         {/* @ts-expect-error */}
-                        <input directory="" webkitdirectory="" type="file" />
-                        <label htmlFor="file-input" className="file-label">
+                        <input id="folder-input" directory="" webkitdirectory="" type="file" />
+                        <label htmlFor="folder-input" className="file-label">
                             Select Folder
                         </label>
                     </div>
