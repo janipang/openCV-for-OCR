@@ -23,15 +23,15 @@ export default function TemplateSelect({
     <div className="template-selector selector">
       <span className="top-bar">
         <h2 className="field-name">Select Template</h2>
-          <select
-            name="template-select"
-            id="select-box"
-            onChange={(e) => handleTemplateChange(e.target.value)}
-          >
-            {templates.map((template) => (
-              <option value={template.name}>{template.name}</option>
-            ))}
-          </select>
+        <select
+          name="template-select"
+          id="select-box"
+          onChange={(e) => handleTemplateChange(e.target.value)}
+        >
+          {templates.map((template) => (
+            <option value={template.name}>{template.name}</option>
+          ))}
+        </select>
       </span>
 
       <div className="frame">
