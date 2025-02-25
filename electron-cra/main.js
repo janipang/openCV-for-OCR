@@ -4,6 +4,8 @@ const path = require("path");
 const fs = require("fs");
 const { spawn, exec } = require("child_process");
 
+let mainWindow;
+
 const baseTempDir = path.join(
   app.getPath("temp"),
   "invoice-data-gathering-app"
@@ -18,7 +20,7 @@ const folders = {
 };
 
 function createWindow() {
-  let win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     title: "Electron + Create React App",
     width: 800,
     height: 600,
@@ -35,7 +37,7 @@ function createWindow() {
     pathname: path.join(__dirname, "app/dist/index.html"),
     protocol: "file:",
   });
-  win.loadURL(startUrl);
+  mainWindow.loadURL(startUrl);
 }
 
 function runCommand(command, args, cwd) {
@@ -43,14 +45,11 @@ function runCommand(command, args, cwd) {
     const process = spawn(command, args, { cwd, shell: true });
 
     process.stdout.on("data", (data) => {
-      console.log(`${command}: ${data}`)
       const message = data.toString().trim();
       const parts = message.split(':');
       if (parts[0] == 'process-update') {
-        if (parts[1] == 'file-success') {
-          console.log('Extracted Data:', parts[2]);
-          mainWindow.webContents.send('process-update', parts[2]);
-        }
+        console.log(message)
+        mainWindow.webContents.send("process-update", (parts[1] + ":" +  parts[2]).toString());
       }
     });
 
@@ -68,15 +67,15 @@ function runCommand(command, args, cwd) {
 
 async function runPythonApp() {
   try {
-    console.log("Upgrading pip...");
-    await runCommand("python", ["-m", "pip", "install", "--upgrade", "pip"], folders.base);
+    // console.log("Upgrading pip...");
+    // await runCommand("python", ["-m", "pip", "install", "--upgrade", "pip"], folders.base);
 
-    console.log("Upgraded pip. Installing dependencies...");
-    await runCommand("python", ["-m", "pip", "install", "-r", "require ments.txt"], folders.base);
+    // console.log("Upgraded pip. Installing dependencies...");
+    // await runCommand("python", ["-m", "pip", "install", "-r", "require ments.txt"], folders.base);
 
     console.log("Dependencies installed. Running app.py...");
     // await runCommand("python", [path.join(folders.base, "app.py")], folders.base);
-    await runCommand("python", [path.join(folders.base, "communication.py")], folders.base);
+    await runCommand("python", ['-u', path.join(folders.base, "communication.py")], folders.base);
 
     console.log("✅ Processing completed!");
   } catch (error) {
@@ -124,6 +123,7 @@ app.whenReady().then(() => {
       "table_scanner.py",
       "custom_service.py",
       "requirements.txt",
+      "communication.py",
     ];
     pythonFileNames.forEach((fileName) => {
       const filePath = path.join(__dirname, "resources", fileName);

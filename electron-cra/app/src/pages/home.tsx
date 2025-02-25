@@ -1,8 +1,9 @@
 import "./home.css";
 import TemplateSelect from "../component/template-select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { ipcRenderer } from 'electron';
 import Template from "../types/template";
+import FileStatus from "../types/file-status";
 
 export default function HomePage() {
   const templates: Template[] = [
@@ -30,21 +31,48 @@ export default function HomePage() {
   ];
 
   const [template, setTemplate] = useState<Template>(templates[0]);
-  // const [inputFilePaths, setInputFilePaths] = useState<File[]>();
+  const [inputFiles, setInputFiles] = useState<FileStatus[]>([]);
   // const [outputDir, setOutputDir] = useState<string>("");
   // const [outputFileName, setOutputFileName] = useState<string>("");
-//   const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string>("");
 
-  // useEffect(() => {
-  //     ipcRenderer.on('process-update', (_, fileName) => {
-  //         setMessage(`File Processed: ${fileName}`);
-  //         console.log(message)
-  //     });
+  useEffect(() => {
+    if (window.electron?.onProcessUpdate) {
+      const handler = (data: string) => {
+        console.log("Received:", data);
+        setMessage(data);
+      };
 
-  //     return () => {
-  //       ipcRenderer.removeAllListeners('process-update');
-  //     };
-  //   }, []);
+      window.electron.onProcessUpdate(handler);
+
+      return () => {
+        // Remove event listener to avoid memory leaks
+        window.electron?.onProcessUpdate(() => {});
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof message !== "string") {
+      console.warn("Message is not a string:", message);
+      return;
+    }
+  
+    const parts = message.split(":");
+    if (parts[0] === "file-success") {
+      const filename = parts[1];
+  
+      setInputFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.name === filename ? { ...file, status: "success" } : file
+        )
+      );
+    }
+  }, [message, setInputFiles]);
+
+  useEffect(() => {
+    console.log("inputFiles", inputFiles)
+  }, [inputFiles]);
 
   // const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
   //     if (!event.target.files) return;
@@ -60,14 +88,15 @@ export default function HomePage() {
 
   //     setInputFilePaths(tempPaths);
   //   };
-  // async function onProcessFiles() {
-  //     try {
-  //         const result = await window.electron.processFiles();
-  //         console.log("Message sent, received in main process:", result);
-  //     } catch (error) {
-  //         console.error("Error in sending message:", error);
-  //     }
-  // }
+
+  async function onProcessFiles() {
+      try {
+          const result = await window.electron.processFiles();
+          console.log("Message sent, received in main process:", result);
+      } catch (error) {
+          console.error("Error in sending message:", error);
+      }
+  }
 
   // const [files, setFiles] = useState<any>([]);
   // console.log(files);
@@ -86,15 +115,29 @@ export default function HomePage() {
           };
         })
       );
-      console.log(fileArray)
+      console.log(fileArray);
 
       try {
         const result = await window.electron.copyFiles(fileArray);
         console.log("Message sent, received in main process:", result);
+        setInputFiles([...createFileStatus(files)]);
       } catch (error) {
         console.error("Error in sending message:", error);
       }
     }
+  }
+
+  function createFileStatus(files: FileList) {
+    let temp_status: FileStatus[] = [];
+    Array.from(files).map((file) => {
+      let item: FileStatus = {
+        name: file.name,
+        status: "selected",
+      };
+      temp_status.push(item);
+    });
+
+    return temp_status;
   }
 
   return (
@@ -119,7 +162,7 @@ export default function HomePage() {
               <label htmlFor="file-input" className="file-label">
                 Select Files
               </label>
-              
+
               {/* @ts-expect-error */}
               <input id="folder-input" directory="" webkitdirectory="" type="file" />
               <label htmlFor="folder-input" className="file-label">
@@ -131,7 +174,7 @@ export default function HomePage() {
           </div>
           <div className="wide-card">
             <p>Select Output Folder</p>
-            {/* @ts-expect-error */}
+             {/* @ts-expect-error */}
             <input id="folder-input" directory="" webkitdirectory="" type="file" />
             <label htmlFor="folder-input" className="file-label">
               Select Folder
@@ -144,7 +187,15 @@ export default function HomePage() {
 
         <section className="progress">
           <h2 className="title">Progress</h2>
-          {/* <button className="submit" onClick={() => onProcessFiles()}>Process</button> */}
+          <div className='file-list'>
+            {inputFiles.map((file) => (
+              <div key={file.name} className='wide-card'>
+                <p className="file-name">{file.name}</p>
+                <p className="file-status">-{file.status}</p>
+              </div>
+            ))}
+          </div>
+          <button className="submit" onClick={() => onProcessFiles()}>Process</button>
         </section>
       </article>
     </>

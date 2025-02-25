@@ -49,10 +49,42 @@ article.scanner .wide-card{
     justify-content: space-between;
 }
 
-article.scanner .wide-card span.button-group{
+article.scanner .span{
+    color: var(--black);
+    display: flex;
+    justify-content: space-between;
+    border-color: 2px solid var(--black);
+}
+
+article.scanner span{
+    color: var(--black);
+}
+
+article.scanner div.file-list{
+    display: flex;
+    gap: var(--template-tab-gap);
+    flex-direction: column;
+}
+
+article.scanner .progress .wide-card{
     gap: var(--template-tab-gap);
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    border: 2px solid var(--black);
+    padding: var(--wide-card-padding);
+}
+
+article.scanner .wide-card p.file-name{
+    gap: var(--template-tab-gap);
+    display: flex;
+    justify-content: space-between;
+    padding: var(--wide-card-padding);
+    width: max-content;
+    max-width: 25ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 article.scanner .progress .top-group{
