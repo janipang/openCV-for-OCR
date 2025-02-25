@@ -78,21 +78,22 @@ export default function HomePage() {
 
   async function onSelectFiles(files: FileList | null) {
     if (files) {
-      const fileDatas = Array.from(files).map((file) => ({
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: URL.createObjectURL(file)
-      }));
+      const fileArray = await Promise.all(
+        Array.from(files).map(async (file) => {
+          return {
+            name: file.name,
+            data: Array.from(new Uint8Array(await file.arrayBuffer())), // Convert to serializable data
+          };
+        })
+      );
+      console.log(fileArray)
 
-      console.log(fileDatas)
-
-    //   try {
-    //     const result = await window.electron.copyFiles(list of string of field "url " from fileDatas);
-    //     console.log("Message sent, received in main process:", result);
-    //   } catch (error) {
-    //     console.error("Error in sending message:", error);
-    //   }
+      try {
+        const result = await window.electron.copyFiles(fileArray);
+        console.log("Message sent, received in main process:", result);
+      } catch (error) {
+        console.error("Error in sending message:", error);
+      }
     }
   }
 

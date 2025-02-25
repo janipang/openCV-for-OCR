@@ -25,8 +25,9 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       enableRemoteModule: false,
-      nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,  // Recommended for security
+      nodeIntegration: false,  // Disable node integration
+      enableRemoteModule: false, // Disable remote module
     },
   });
 
@@ -86,9 +87,9 @@ async function runPythonApp() {
 app.whenReady().then(() => {
   createWindow();
 
-  ipcMain.handle("copy-files", async (_event, filepaths) => {
+  ipcMain.handle("copy-files", async (_event, files) => {
     const rawFilesFolder = folders.raw;
-    console.log("Copying files from to ", rawFilesFolder, "...");
+    console.log("Copying files to ", rawFilesFolder, "...");
 
     // create raw-file folder
     if (fs.existsSync(rawFilesFolder)) {
@@ -96,9 +97,16 @@ app.whenReady().then(() => {
     }
     fs.mkdirSync(rawFilesFolder, { recursive: true });
 
-    filepaths.forEach((filepath) => {
-      const fileName = path.basename(filepath);
-      fs.copyFileSync(filepath, path.join(rawFilesFolder, fileName));
+    //save files
+    console.log(files)
+    Array.from(files).forEach((file) => {
+      fs.writeFile(path.join(rawFilesFolder, file.name), Buffer.from(file.data), (err) => {
+        if (err) {
+          console.error("File saving error:", err);
+        } else {
+          console.log("File saved to:", file);
+        }
+      });
     });
     console.log("/ Copied Success.\n");
 

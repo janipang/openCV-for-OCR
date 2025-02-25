@@ -1,5 +1,5 @@
 export interface ElectronAPI {
-    copyFiles: (paths: string[]) => Promise<boolean>;
+    copyFiles: (files: ElectronFile[]) => Promise<boolean>;
     processFiles: () => Promise<boolean>;
     // onProcessUpdate: (callback: (data: string) => void) => void;
     // removeProcessUpdateListener: () => void;
