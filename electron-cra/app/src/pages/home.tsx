@@ -90,7 +90,12 @@ export default function HomePage() {
 
   async function onProcessFiles() {
       try {
-          const result = await window.electron.processFiles();
+          const result = await window.electron.processFiles(
+            {
+              output_dir: "C:/Users/pangj/Downloads/rabbit_noi",
+              output_file_name: "rabbit_data",
+              selected_field: [3,4,5,6,7,8,9]
+            });
           console.log("Message sent, received in main process:", result);
       } catch (error) {
           console.error("Error in sending message:", error);
