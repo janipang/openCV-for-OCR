@@ -98,13 +98,6 @@ export default function HomePage() {
       }
   }
 
-  // const [files, setFiles] = useState<any>([]);
-  // console.log(files);
-
-  // const handleFileUpload = (newFiles: any[]) => {
-  //     setFiles([...newFiles]);
-  // }
-
   async function onSelectFiles(files: FileList | null) {
     if (files) {
       const fileArray = await Promise.all(
@@ -151,7 +144,7 @@ export default function HomePage() {
             setTemplate={setTemplate}
           />
           <div className="wide-card">
-            <p>Select Files or Folder</p>
+            <p className="field-name">Select Files or Folder</p>
             <span className="button-group">
               <input
                 id="file-input"
@@ -173,7 +166,7 @@ export default function HomePage() {
             </span>
           </div>
           <div className="wide-card">
-            <p>Select Output Folder</p>
+            <p className="field-name">Select Output Folder</p>
              {/* @ts-expect-error */}
             <input id="folder-input" directory="" webkitdirectory="" type="file" />
             <label htmlFor="folder-input" className="file-label">
@@ -183,19 +176,22 @@ export default function HomePage() {
           <div className="wide-card">
             <p>Output File Name</p>
           </div>
+          <div className="wide-card">
+            <button className="submit" onClick={() => onProcessFiles()}>Process</button>
+          </div>
         </section>
 
         <section className="progress">
           <h2 className="title">Progress</h2>
+          <button className="submit" onClick={() => onProcessFiles()}>Process</button>
           <div className='file-list'>
             {inputFiles.map((file) => (
               <div key={file.name} className='wide-card'>
                 <p className="file-name">{file.name}</p>
-                <p className="file-status">-{file.status}</p>
+                <p className="file-status">{file.status}</p>
               </div>
             ))}
           </div>
-          <button className="submit" onClick={() => onProcessFiles()}>Process</button>
         </section>
       </article>
     </>
