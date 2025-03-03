@@ -4,3 +4,4 @@ pytesseract
 numpy
 pillow
 pandas
+easyocr
