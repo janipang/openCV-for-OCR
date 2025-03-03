@@ -1,7 +1,6 @@
 import "./home.css";
 import TemplateSelect from "../component/template-select";
 import { useEffect, useState } from "react";
-// import { ipcRenderer } from 'electron';
 import Template from "../types/template";
 import FileStatus from "../types/file-status";
 
@@ -186,9 +185,9 @@ export default function HomePage() {
           <button className="submit" onClick={() => onProcessFiles()}>Process</button>
           <div className='file-list'>
             {inputFiles.map((file) => (
-              <div key={file.name} className='wide-card'>
+              <div key={file.name} className='small-wide-card'>
                 <p className="file-name">{file.name}</p>
-                <p className="file-status">{file.status}</p>
+                <span className={`file-status ${file.status}`} />
               </div>
             ))}
           </div>
