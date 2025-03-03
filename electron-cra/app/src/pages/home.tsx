@@ -73,21 +73,6 @@ export default function HomePage() {
     console.log("inputFiles", inputFiles)
   }, [inputFiles]);
 
-  // const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     if (!event.target.files) return;
-
-  //     const uploadedFiles = Array.from(event.target.files);
-  //     const tempPaths = await Promise.all(
-  //       uploadedFiles.map(async (file) => {
-  //         // Simulate moving the file to a temp location
-  //         const tempPath = await saveToTempFolder(file); // Your logic here
-  //         return tempPath;
-  //       })
-  //     );
-
-  //     setInputFilePaths(tempPaths);
-  //   };
-
   async function onProcessFiles() {
       try {
           const result = await window.electron.processFiles(

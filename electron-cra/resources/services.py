@@ -1,6 +1,16 @@
 import os
 from document import *
 
+def process_file_as_sample(target, output_dir="/content/invoice_data.xlsx"):
+    try:
+        print(f"Processing: {target}")
+
+        d = Document(target)
+        d.process_as_sample(output_dir)
+
+    except Exception as e:
+        print(e)
+        
 def process_file(target, input_dir = "/content/INV_Dataset/", output_dir="/content/invoice_data.xlsx"):
 
     pdf_files = [f for f in os.listdir(input_dir) if f.endswith(".pdf")]

@@ -60,41 +60,6 @@ function createFileStructure() {
       recreateFolder(folder);
     }
   });
-
-  // // create raw-file folder
-  // if (fs.existsSync(rawFilesFolder)) {
-  //   fs.rmSync(rawFilesFolder, { recursive: true, force: true });
-  // }
-  // fs.mkdirSync(rawFilesFolder, { recursive: true });
-
-  // // create output folder
-  
-  // const outputFolder = folders.output;
-  // if (fs.existsSync(outputFolder)) {
-  //   fs.rmSync(outputFolder, { recursive: true, force: true });
-  // }
-  // fs.mkdirSync(outputFolder, { recursive: true });
-
-  // // create temp folder
-  // const tempFolder = folders.temp;
-  // if (fs.existsSync(tempFolder)) {
-  //   fs.rmSync(tempFolder, { recursive: true, force: true });
-  // }
-  // fs.mkdirSync(tempFolder, { recursive: true });
-
-  // // create template folder
-  // const plainTemplateFolder = folders.template.plain;
-  // if (fs.existsSync(plainTemplateFolder)) {
-  //   fs.rmSync(plainTemplateFolder, { recursive: true, force: true });
-  // }
-  // fs.mkdirSync(plainTemplateFolder, { recursive: true });
-
-  // const boundedTemplateFolder = folders.bounded;
-  // if (fs.existsSync(boundedTemplateFolder)) {
-  //   fs.rmSync(boundedTemplateFolder, { recursive: true, force: true });
-  // }
-  // fs.mkdirSync(boundedTemplateFolder, { recursive: true });
-
   console.log("/ Created Structure Success.\n");
 
   // copy resources file
