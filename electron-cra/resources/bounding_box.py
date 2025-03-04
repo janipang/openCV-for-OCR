@@ -52,7 +52,7 @@ class BoundingBox:
     def show_image(self) -> None:
         display = self.src_image.copy()
         display = display[self.tl[1] : self.br[1], self.tl[0] : self.br[0]]
-        cv2_imshow(display)
+        # cv2_imshow(display)
 
     def show_image_highlight(self) -> None:
         display = self.src_image.copy()
@@ -61,7 +61,7 @@ class BoundingBox:
             bbox = q.pop(0)
             cv2.rectangle(display, bbox.tl, bbox.br, (0, 255, 0), 4)
             q.extend(bbox.child)
-        cv2_imshow(display)
+        # cv2_imshow(display)
 
     def image(self, otsu=False):
         image = self.src_image.copy()

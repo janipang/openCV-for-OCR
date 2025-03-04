@@ -21,6 +21,7 @@ def process_file(target, input_dir = "/content/INV_Dataset/", output_dir="/conte
     m = 5
 
     for pdf_file in pdf_files:
+        print(f"process-update:file-start:{pdf_file}", flush=True)
         if m == 0:
             break
         m -= 1
@@ -46,7 +47,7 @@ def process_file(target, input_dir = "/content/INV_Dataset/", output_dir="/conte
 
             # print(row)
             processed_data.append(row)
-            print(f"process-update:file-success:{pdf_file}")
+            print(f"process-update:file-success:{pdf_file}", flush=True)
             c += 1
 
         except Exception as e:
@@ -57,4 +58,4 @@ def process_file(target, input_dir = "/content/INV_Dataset/", output_dir="/conte
     output_path = output_dir
     df.to_excel(output_path, index=False, engine="openpyxl")
 
-    print(f"process-update:process-success:file saved")
+    print(f"process-update:process-success:file saved", flush=True)

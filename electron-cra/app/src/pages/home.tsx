@@ -67,10 +67,20 @@ export default function HomePage() {
         )
       );
     }
+    else if (parts[0] === "file-start") {
+      const filename = parts[1];
+
+      setInputFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.name === filename ? { ...file, status: "running" } : file
+        )
+      );
+      console.log("set-status-running");
+    }
   }, [message, setInputFiles]);
 
   useEffect(() => {
-    console.log("inputFiles", inputFiles)
+      console.log(inputFiles);
   }, [inputFiles]);
 
   async function onProcessFiles() {
@@ -81,7 +91,10 @@ export default function HomePage() {
               output_file_name: "rabbit_data",
               selected_field: [3,4,5,6,7,8,9]
             });
-          console.log("Message sent, received in main process:", result);
+
+          // set status of all file as pending
+          setInputFiles((prevFiles) => prevFiles.map(file => ({ ...file, status: "pending" })));
+          console.log("backend processing files ends with status code: ", result)
       } catch (error) {
           console.error("Error in sending message:", error);
       }
@@ -183,7 +196,11 @@ export default function HomePage() {
             {inputFiles.map((file) => (
               <div key={file.name} className='small-wide-card'>
                 <p className="file-name">{file.name}</p>
-                <span className={`file-status ${file.status}`} />
+                {
+                  file.status === 'selected' ? 
+                    <button> X </button> : 
+                    <span className={`file-status ${file.status}`} />
+                }
               </div>
             ))}
           </div>

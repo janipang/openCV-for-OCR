@@ -3,6 +3,7 @@ const url = require("url");
 const path = require("path");
 const fs = require("fs");
 const { spawn, exec } = require("child_process");
+const readline = require("readline");
 
 let mainWindow;
 
@@ -83,13 +84,28 @@ function createFileStructure() {
 function runCommand(command, args, cwd) {
   return new Promise((resolve, reject) => {
     const process = spawn(command, args, { cwd, shell: true });
+    const rl = readline.createInterface({
+      input: process.stdout,
+      output: process.stderr,
+      terminal: false,
+    });
 
-    process.stdout.on("data", (data) => {
-      const message = data.toString().trim();
-      const parts = message.split(':');
-      if (parts[0] == 'process-update') {
-        console.log(message)
-        mainWindow.webContents.send("process-update", (parts[1] + ":" +  parts[2]).toString());
+    // process.stdout.on("data", (data) => {
+    //   const message = data.toString().trim();
+    //   const parts = message.split(':');
+    //   if (parts[0] == 'process-update') {
+    //     console.log(message)
+    //     mainWindow.webContents.send("process-update", (parts[1] + ":" +  parts[2]).toString());
+    //   }
+    // });
+
+    // use readline instead directly read from stdout prevent buffering and receiving multiple lines
+    rl.on("line", (line) => {
+      const message = line.trim();
+      console.log(message); // Debugging
+      const parts = message.split(":");
+      if (parts[0] === "process-update" && parts.length >= 3) {
+        mainWindow.webContents.send("process-update", `${parts[1]}:${parts.slice(2).join(":")}`);
       }
     });
 
@@ -111,7 +127,7 @@ async function runPythonProcess(input_dir, output_dir, output_file_name, selecte
     // await runCommand("python", ["-m", "pip", "install", "--upgrade", "pip"], folders.base);
 
     // console.log("Upgraded pip. Installing dependencies...");
-    // await runCommand("python", ["-m", "pip", "install", "-r", "require ments.txt"], folders.base);
+    // await runCommand("python", ["-m", "pip", "install", "-r", "requirements.txt"], folders.base);
 
     console.log("Running process.py...");
     await runCommand("python", [
