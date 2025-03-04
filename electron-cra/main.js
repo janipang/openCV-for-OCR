@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const url = require("url");
 const path = require("path");
 const fs = require("fs");
@@ -114,7 +114,6 @@ async function runPythonProcess(input_dir, output_dir, output_file_name, selecte
     // await runCommand("python", ["-m", "pip", "install", "-r", "require ments.txt"], folders.base);
 
     console.log("Running process.py...");
-    // await runCommand("python", [path.join(folders.base, "app.py")], folders.base);
     await runCommand("python", [
       "-u",
       path.join(folders.base, "process.py"),
@@ -163,6 +162,15 @@ app.whenReady().then(() => {
     console.log("/ Saved Files Success.\n");
 
     return true;
+  });
+  
+  // handle select output directory
+  ipcMain.handle('select-directory', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    });
+  
+    return result.filePaths[0] || null; // Return the selected directory path
   });
 
   // handle run process on files

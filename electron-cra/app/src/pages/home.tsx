@@ -122,6 +122,13 @@ export default function HomePage() {
     return temp_status;
   }
 
+  async function handleSelectDirectory(){
+    const selectedPath = await window.electron.selectDirectory();
+    if (selectedPath){
+      console.log(selectedPath);
+    }
+  }
+
   return (
     <>
       <article className="scanner">
@@ -156,8 +163,7 @@ export default function HomePage() {
           </div>
           <div className="wide-card">
             <p className="field-name">Select Output Folder</p>
-             {/* @ts-expect-error */}
-            <input id="folder-input" directory="" webkitdirectory="" type="file" />
+            <button onClick={handleSelectDirectory}>Select Directory</button>
             <label htmlFor="folder-input" className="file-label">
               Select Folder
             </label>

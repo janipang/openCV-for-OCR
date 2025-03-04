@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electron", {
     copyFiles: (files) => ipcRenderer.invoke("copy-files", files),
+    selectDirectory: () => ipcRenderer.invoke('select-directory'),
     processFiles: (config) => ipcRenderer.invoke("process-files", config),
     uploadTemplate: (file) => ipcRenderer.invoke("upload-template", file),
     onProcessUpdate: (callback) => {

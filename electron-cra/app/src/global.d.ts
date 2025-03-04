@@ -1,5 +1,6 @@
 export interface ElectronAPI {
     copyFiles: (files: ElectronFile[]) => Promise<boolean>;
+    selectDirectory: () => Promise<string | null>;
     processFiles: (config: ProcessConfig) => Promise<boolean>;
     uploadTemplate: (file: ElectronFile) => Promise<boolean>;
     onProcessUpdate: (callback: (data: string) => void) => void;
