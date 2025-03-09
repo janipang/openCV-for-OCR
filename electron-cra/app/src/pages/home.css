@@ -48,15 +48,19 @@ article.scanner .field-card {
   align-items: center;
 }
 
+article.scanner .field-name {
+  font-size: var(--medium-font-size);
+  font-weight: var(--regular-font-weight);
+  color: var(--black);
+}
+
 article.scanner .button-group {
   display: flex;
   align-items: center;
   gap: var(--button-gap);
 }
 
-article.scanner .icon-button{
-  background-color: var(--dark-blue);
-  border: none;
+article.scanner button.icon-button{
   border-radius: var(--button-rounding);
   padding: var(--button-padding-y) var(--button-padding-x);
   box-shadow: var(--down-medium-shadow);
@@ -64,13 +68,12 @@ article.scanner .icon-button{
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  color: var(--white);
   font-weight: var(--medium-font-weight);
-  font-size: var(--medium-font-size);
+  font-size: var(--small-font-size);
 }
 
 article.scanner .top-space{
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 article.scanner .span {
@@ -91,7 +94,7 @@ article.scanner .progress{
 
 article.scanner .progress .file-list {
   display: flex;
-  gap: var(--template-tab-gap);
+  gap: var(--file-list-gap);
   flex-direction: column;
 }
 
@@ -102,6 +105,8 @@ article.scanner .progress .small-wide-card {
   align-items: center;
   border: 2px solid var(--dark-gray);
   padding: var(--small-wide-card-padding);
+  border-radius: var(--wide-card-rounding);
+  border: 2px solid var(--light-gray);
   color: var(--black);
 }
 
@@ -117,6 +122,15 @@ article.scanner .small-wide-card .file-status {
   height: 15px;
   aspect-ratio: 1/1;
   border-radius: 10000px;
+}
+
+article.scanner .small-wide-card button.remove {
+  background-color: transparent;
+  color: var(--black);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 article.scanner .file-status.pending {
@@ -135,10 +149,33 @@ article.scanner .file-status.error {
   background-color: var(--red);
 }
 
-input[type="text"] {
+article.scanner input[type="text"] {
   padding: var(--button-padding-x) var(--button-padding-y);
   border-radius: var(--button-rounding);
   border: 2px solid var(--dark-blue);
-  color: var(--dark-blue);
   background-color: var(--white);
+  min-width: 45ch;
+  font-size: var(--small-font-size);
+  font-weight: var(--medium-font-weight);
+  color: var(--black);
+}
+
+article.scanner p{
+  margin: 0px;
+}
+
+button.cancel{
+  color:var(--red);
+  border: 2px solid var(--red);
+  background-color: var(--white);
+}
+
+button.submit{
+  color: var(--white);
+  border: 2px solid var(--dark-blue);
+  background-color: var(--dark-blue);
+}
+
+button:hover{
+  cursor: pointer;
 }

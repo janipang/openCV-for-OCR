@@ -1,4 +1,4 @@
-button{
+button.button-with-icon{
     border-radius: var(--button-rounding);
     padding: var(--button-padding-y) var(--button-padding-y);
     gap: var(--button-gap);
@@ -8,12 +8,12 @@ button{
     box-shadow: var(--down-medium-shadow);
 }
 
-button:hover{
+button.button-with-icon:hover{
     background-color: var(--navy);
     cursor: pointer;
 }
 
-button p{
+button.button-with-icon p{
     font-weight: var(--medium-font-weight);
     font-size: var(--small-font-size);
 }

@@ -31,7 +31,7 @@ export default function HomePage() {
 
   const [template, setTemplate] = useState<Template>(templates[0]);
   const [inputFiles, setInputFiles] = useState<FileStatus[]>([]);
-  // const [outputDir, setOutputDir] = useState<string>("");
+  const [outputDir, setOutputDir] = useState<string>("");
   const [outputFileName, setOutputFileName] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
@@ -84,26 +84,34 @@ export default function HomePage() {
   }, [inputFiles]);
 
   async function onProcessFiles() {
-      try {
-          const result = await window.electron.processFiles(
-            {
-              output_dir: "C:/Users/pangj/Downloads/rabbit_noi",
-              output_file_name: "rabbit_data",
-              selected_field: [3,4,5,6,7,8,9]
-            });
+    if (!validateOutputFileName()){
+      console.log("please correct your output file name");
+      return false;
+    }
+    if (!validateInputFile()){
+      console.log("please select only pdf file to process");
+      return false;
+    }
+    try {
+        const result = await window.electron.processFiles(
+          {
+            output_dir: outputDir,
+            output_file_name: outputFileName,
+            selected_field: template.accepted_field,
+          });
 
-          // set status of all file as pending
-          setInputFiles((prevFiles) => prevFiles.map(file => ({ ...file, status: "pending" })));
-          console.log("backend processing files ends with status code: ", result)
-      } catch (error) {
-          console.error("Error in sending message:", error);
-      }
+        // set status of all file as pending
+        setInputFiles((prevFiles) => prevFiles.map(file => ({ ...file, status: "pending" })));
+        console.log("Message sent, received in main process:", result);
+    } catch (error) {
+        console.error("Error in sending message:", error);
+    }
   }
 
   function onCancel(){
     setTemplate(templates[0]);
     setInputFiles([]);
-    // setOutputDir("");
+    setOutputDir("");
     setOutputFileName("");
   }
 
@@ -146,16 +154,21 @@ export default function HomePage() {
     const selectedPath = await window.electron.selectDirectory();
     if (selectedPath){
       console.log(selectedPath);
+      setOutputDir(selectedPath.replace(/\\/g, "/"));
     }
   }
 
-  function handleSetFileName(filename: string){
-    const regex = /^[^\\/:*?"<>|]+$/;
-    if (!regex.test(filename)) {
-      console.log("Invalid file name");
-      return ;
+  function validateOutputFileName(){
+    const regex = /^[^\\/:*?"<>|.]+$/;
+    console.log(outputFileName);
+    if (!regex.test(outputFileName)) {
+      return false;
     }
-    setOutputFileName(filename);
+    return true;
+  }
+
+  function validateInputFile(){
+    if (!inputFiles || inputFiles.length === 0) return false;
   }
 
   return (
@@ -195,18 +208,24 @@ export default function HomePage() {
             <button className="file-label" onClick={handleSelectDirectory}>Select Folder</button>
           </div>
           <div className="field-card">
-            <p>Output File Name</p>
-            <input type="text" onChange={(e) => {handleSetFileName(e.target.value)}} placeholder="Enter Your Project Name" value={outputFileName}/>
+            <p className="field-name">Output File Name</p>
+            <span className="button-group">
+              <input type="text" onChange={(e) => setOutputFileName(e.target.value)} placeholder="Enter Your Project Name" value={outputFileName}/>
+            </span>
           </div>
           <div className="field-card top-space ">
             <span className="ghost"></span>
             <span className="button-group">
               <button className="icon-button cancel" onClick={() => onCancel()}>
-                <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.4412 13.9L15.3412 16.8C15.5245 16.9833 15.7578 17.075 16.0412 17.075C16.3245 17.075 16.5578 16.9833 16.7412 16.8C16.9245 16.6167 17.0162 16.3833 17.0162 16.1C17.0162 15.8167 16.9245 15.5833 16.7412 15.4L13.8412 12.5L16.7412 9.6C16.9245 9.41667 17.0162 9.18333 17.0162 8.9C17.0162 8.61667 16.9245 8.38333 16.7412 8.2C16.5578 8.01667 16.3245 7.925 16.0412 7.925C15.7578 7.925 15.5245 8.01667 15.3412 8.2L12.4412 11.1L9.54116 8.2C9.35783 8.01667 9.1245 7.925 8.84116 7.925C8.55783 7.925 8.3245 8.01667 8.14116 8.2C7.95783 8.38333 7.86616 8.61667 7.86616 8.9C7.86616 9.18333 7.95783 9.41667 8.14116 9.6L11.0412 12.5L8.14116 15.4C7.95783 15.5833 7.86616 15.8167 7.86616 16.1C7.86616 16.3833 7.95783 16.6167 8.14116 16.8C8.3245 16.9833 8.55783 17.075 8.84116 17.075C9.1245 17.075 9.35783 16.9833 9.54116 16.8L12.4412 13.9ZM12.4412 22.5C11.0578 22.5 9.75783 22.2373 8.54116 21.712C7.3245 21.1867 6.26616 20.4743 5.36616 19.575C4.46616 18.6757 3.75383 17.6173 3.22916 16.4C2.7045 15.1827 2.44183 13.8827 2.44116 12.5C2.4405 11.1173 2.70316 9.81733 3.22916 8.6C3.75516 7.38267 4.4675 6.32433 5.36616 5.425C6.26483 4.52567 7.32316 3.81333 8.54116 3.288C9.75916 2.76267 11.0592 2.5 12.4412 2.5C13.8232 2.5 15.1232 2.76267 16.3412 3.288C17.5592 3.81333 18.6175 4.52567 19.5162 5.425C20.4148 6.32433 21.1275 7.38267 21.6542 8.6C22.1808 9.81733 22.4432 11.1173 22.4412 12.5C22.4392 13.8827 22.1765 15.1827 21.6532 16.4C21.1298 17.6173 20.4175 18.6757 19.5162 19.575C18.6148 20.4743 17.5565 21.187 16.3412 21.713C15.1258 22.239 13.8258 22.5013 12.4412 22.5ZM12.4412 20.5C14.6745 20.5 16.5662 19.725 18.1162 18.175C19.6662 16.625 20.4412 14.7333 20.4412 12.5C20.4412 10.2667 19.6662 8.375 18.1162 6.825C16.5662 5.275 14.6745 4.5 12.4412 4.5C10.2078 4.5 8.31616 5.275 6.76616 6.825C5.21616 8.375 4.44116 10.2667 4.44116 12.5C4.44116 14.7333 5.21616 16.625 6.76616 18.175C8.31616 19.725 10.2078 20.5 12.4412 20.5Z" fill="#FF3B30"/></svg>
+                <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12.4412 13.9L15.3412 16.8C15.5245 16.9833 15.7578 17.075 16.0412 17.075C16.3245 17.075 16.5578 16.9833 16.7412 16.8C16.9245 16.6167 17.0162 16.3833 17.0162 16.1C17.0162 15.8167 16.9245 15.5833 16.7412 15.4L13.8412 12.5L16.7412 9.6C16.9245 9.41667 17.0162 9.18333 17.0162 8.9C17.0162 8.61667 16.9245 8.38333 16.7412 8.2C16.5578 8.01667 16.3245 7.925 16.0412 7.925C15.7578 7.925 15.5245 8.01667 15.3412 8.2L12.4412 11.1L9.54116 8.2C9.35783 8.01667 9.1245 7.925 8.84116 7.925C8.55783 7.925 8.3245 8.01667 8.14116 8.2C7.95783 8.38333 7.86616 8.61667 7.86616 8.9C7.86616 9.18333 7.95783 9.41667 8.14116 9.6L11.0412 12.5L8.14116 15.4C7.95783 15.5833 7.86616 15.8167 7.86616 16.1C7.86616 16.3833 7.95783 16.6167 8.14116 16.8C8.3245 16.9833 8.55783 17.075 8.84116 17.075C9.1245 17.075 9.35783 16.9833 9.54116 16.8L12.4412 13.9ZM12.4412 22.5C11.0578 22.5 9.75783 22.2373 8.54116 21.712C7.3245 21.1867 6.26616 20.4743 5.36616 19.575C4.46616 18.6757 3.75383 17.6173 3.22916 16.4C2.7045 15.1827 2.44183 13.8827 2.44116 12.5C2.4405 11.1173 2.70316 9.81733 3.22916 8.6C3.75516 7.38267 4.4675 6.32433 5.36616 5.425C6.26483 4.52567 7.32316 3.81333 8.54116 3.288C9.75916 2.76267 11.0592 2.5 12.4412 2.5C13.8232 2.5 15.1232 2.76267 16.3412 3.288C17.5592 3.81333 18.6175 4.52567 19.5162 5.425C20.4148 6.32433 21.1275 7.38267 21.6542 8.6C22.1808 9.81733 22.4432 11.1173 22.4412 12.5C22.4392 13.8827 22.1765 15.1827 21.6532 16.4C21.1298 17.6173 20.4175 18.6757 19.5162 19.575C18.6148 20.4743 17.5565 21.187 16.3412 21.713C15.1258 22.239 13.8258 22.5013 12.4412 22.5ZM12.4412 20.5C14.6745 20.5 16.5662 19.725 18.1162 18.175C19.6662 16.625 20.4412 14.7333 20.4412 12.5C20.4412 10.2667 19.6662 8.375 18.1162 6.825C16.5662 5.275 14.6745 4.5 12.4412 4.5C10.2078 4.5 8.31616 5.275 6.76616 6.825C5.21616 8.375 4.44116 10.2667 4.44116 12.5C4.44116 14.7333 5.21616 16.625 6.76616 18.175C8.31616 19.725 10.2078 20.5 12.4412 20.5Z" fill="#FF3B30"/>
+                </svg>
                 <p>Cancel</p>
               </button>
               <button className="icon-button submit" onClick={() => onProcessFiles()}>
-                <svg width="16" height="19" viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.74216 3.21155C2.53512 5.30075 2.43432 7.39912 2.44016 9.49855C2.44016 12.2995 2.61016 14.4955 2.74216 15.7875C4.65411 14.9191 6.52144 13.9555 8.33716 12.9005C10.1581 11.8558 11.9256 10.7207 13.6332 9.49955C11.926 8.27702 10.1588 7.1406 8.33816 6.09455C6.52204 5.0409 4.65437 4.0787 2.74216 3.21155ZM0.837162 2.26355C0.864168 2.03649 0.943772 1.81886 1.06964 1.62796C1.19552 1.43706 1.36419 1.27816 1.56225 1.16389C1.7603 1.04962 1.98229 0.983127 2.21056 0.9697C2.43882 0.956273 2.66707 0.996282 2.87716 1.08655C3.93916 1.54055 6.31916 2.61955 9.33916 4.36255C12.3602 6.10655 14.4852 7.62955 15.4082 8.32055C16.1962 8.91155 16.1982 10.0835 15.4092 10.6765C14.4952 11.3635 12.3962 12.8665 9.33916 14.6325C6.27916 16.3985 3.92716 17.4645 2.87516 17.9125C1.96916 18.2995 0.955162 17.7125 0.837162 16.7355C0.699162 15.5935 0.441162 13.0005 0.441162 9.49855C0.441162 5.99855 0.698162 3.40655 0.837162 2.26355Z" fill="white"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.301 5.24438C6.09395 7.33359 5.99316 9.43196 5.999 11.5314C5.999 14.3324 6.169 16.5284 6.301 17.8204C8.21295 16.9519 10.0803 15.9884 11.896 14.9334C13.7169 13.8887 15.4844 12.7536 17.192 11.5324C15.4848 10.3099 13.7176 9.17343 11.897 8.12738C10.0809 7.07373 8.21321 6.11153 6.301 5.24438ZM4.396 4.29638C4.42301 4.06932 4.50261 3.8517 4.62848 3.6608C4.75435 3.4699 4.92302 3.311 5.12108 3.19673C5.31914 3.08246 5.54113 3.01596 5.76939 3.00254C5.99766 2.98911 6.22591 3.02912 6.436 3.11938C7.498 3.57338 9.878 4.65238 12.898 6.39538C15.919 8.13938 18.044 9.66238 18.967 10.3534C19.755 10.9444 19.757 12.1164 18.968 12.7094C18.054 13.3964 15.955 14.8994 12.898 16.6654C9.838 18.4314 7.486 19.4974 6.434 19.9454C5.528 20.3324 4.514 19.7454 4.396 18.7684C4.258 17.6264 4 15.0334 4 11.5314C4 8.03138 4.257 5.43938 4.396 4.29638Z" fill="white"/>
+                </svg>
                 <p>Start Processing</p>
               </button>
             </span>
@@ -221,7 +240,11 @@ export default function HomePage() {
                 <p className="file-name">{file.name}</p>
                 {
                   file.status === 'selected' ? 
-                    <button> X </button> : 
+                    <button className="remove" >
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                      </svg>
+                    </button> : 
                     <span className={`file-status ${file.status}`} />
                 }
               </div>

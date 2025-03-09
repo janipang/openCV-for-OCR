@@ -14,7 +14,7 @@
   "homepage": ".",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron .",
+    "start": "cd app && npm run build && cd .. && electron .",
     "dev": "cd app && npm run build && cd .. && npx electronmon --trace-warnings ."
   },
   "dependencies": {
