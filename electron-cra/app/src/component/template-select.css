@@ -16,7 +16,7 @@
 
 .template-selector h2.field-name{
     font-size: var(--medium-font-size);
-    font-weight: var(--medium-font-weight);
+    font-weight: var(--regular-font-weight);
     color: var(--black);
 }
 
@@ -48,7 +48,7 @@
 
 .template-selector div.frame{
     width: 100%;
-    aspect-ratio: 5/3;
+    aspect-ratio: 5/2;
     box-shadow: var(--down-medium-shadow);
     background-color: var(--white);
     display: flex;

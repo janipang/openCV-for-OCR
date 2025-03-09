@@ -7,6 +7,7 @@ article.scanner {
 section.selection {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   padding: var(--main-article-padding-y) var(--main-article-padding-x);
   height: 100%;
   gap: var(--main-article-gap);
@@ -39,14 +40,37 @@ article.scanner .file-label:hover {
   cursor: pointer;
 }
 
-article.scanner .wide-card {
-  padding: var(--wide-card-padding);
-  border-radius: var(--wide-card-rounding);
-  background-color: var(--white);
-  box-shadow: var(--down-medium-shadow);
+article.scanner .field-card {
+  padding: var(--field-card-padding);
   color: var(--black);
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+article.scanner .button-group {
+  display: flex;
+  align-items: center;
+  gap: var(--button-gap);
+}
+
+article.scanner .icon-button{
+  background-color: var(--dark-blue);
+  border: none;
+  border-radius: var(--button-rounding);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  box-shadow: var(--down-medium-shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  color: var(--white);
+  font-weight: var(--medium-font-weight);
+  font-size: var(--medium-font-size);
+}
+
+article.scanner .top-space{
+  margin-top: 1rem;
 }
 
 article.scanner .span {
@@ -109,4 +133,12 @@ article.scanner .file-status.success {
 
 article.scanner .file-status.error {
   background-color: var(--red);
+}
+
+input[type="text"] {
+  padding: var(--button-padding-x) var(--button-padding-y);
+  border-radius: var(--button-rounding);
+  border: 2px solid var(--dark-blue);
+  color: var(--dark-blue);
+  background-color: var(--white);
 }

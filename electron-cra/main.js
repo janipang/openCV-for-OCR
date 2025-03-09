@@ -26,9 +26,7 @@ const folders = {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    title: "Electron + Create React App",
-    width: 800,
-    height: 600,
+    title: "Electron + Create React App", 
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       enableRemoteModule: false,
@@ -37,6 +35,7 @@ function createWindow() {
       enableRemoteModule: false, // Disable remote module
     },
   });
+  mainWindow.maximize();
 
   const startUrl = url.format({
     pathname: path.join(__dirname, "app/dist/index.html"),
