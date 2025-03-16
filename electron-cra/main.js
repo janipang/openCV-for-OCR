@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, screen  } = require("electron");
 const url = require("url");
 const path = require("path");
 const fs = require("fs");
@@ -25,17 +25,18 @@ const folders = {
 };
 
 function createWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
     title: "Electron + Create React App", 
+    width: width,
+    height: height,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      enableRemoteModule: false,
       contextIsolation: true,  // Recommended for security
       nodeIntegration: false,  // Disable node integration
       enableRemoteModule: false, // Disable remote module
     },
   });
-  mainWindow.maximize();
 
   const startUrl = url.format({
     pathname: path.join(__dirname, "app/dist/index.html"),
@@ -185,7 +186,7 @@ app.whenReady().then(() => {
       properties: ['openDirectory'],
     });
   
-    return result.filePaths[0] || null; // Return the selected directory path
+    return result.filePaths[0].replace(/\\/g, "/") || null; // Return the selected directory path
   });
 
   // handle run process on files

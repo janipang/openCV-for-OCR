@@ -3,6 +3,8 @@ import TemplateSelect from "../component/template-select";
 import { useEffect, useState } from "react";
 import Template from "../types/template";
 import FileStatus from "../types/file-status";
+import { filter_duplicate_filesname_new, filter_duplicate_filesname_new_old } from "../services/validate_file";
+import FileSelectErrorDialog from "../component/file_select_error_dialog";
 
 export default function HomePage() {
   const templates: Template[] = [
@@ -34,6 +36,8 @@ export default function HomePage() {
   const [outputDir, setOutputDir] = useState<string>("");
   const [outputFileName, setOutputFileName] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [processStatus, setProcessStatus] = useState<"waiting"|"running"|"complete">("waiting");
 
   useEffect(() => {
     if (window.electron?.onProcessUpdate) {
@@ -51,6 +55,7 @@ export default function HomePage() {
     }
   }, []);
 
+  //receive message from electron main process
   useEffect(() => {
     if (typeof message !== "string") {
       console.warn("Message is not a string:", message);
@@ -77,21 +82,40 @@ export default function HomePage() {
       );
       console.log("set-status-running");
     }
+    else if (parts[0] === "process-success"){
+      setProcessStatus("complete");
+    }
   }, [message, setInputFiles]);
 
+
   useEffect(() => {
-      console.log(inputFiles);
+      console.log("inputFiles", inputFiles);
   }, [inputFiles]);
 
+
   async function onProcessFiles() {
-    if (!validateOutputFileName()){
-      console.log("please correct your output file name");
-      return false;
-    }
     if (!validateInputFile()){
       console.log("please select only pdf file to process");
       return false;
     }
+    if (!validateOutputFileName()){
+      console.log("please correct your output file name");
+      return false;
+    }
+    if (!validateOutputDir()){
+      console.log("please correct your output dir");
+      return false;
+    }
+    
+    setProcessStatus("running");
+
+    try {
+      const result = await window.electron.copyFiles(inputFiles);
+      console.log("copyFiles sent, received in main process:", result);
+    } catch (error) {
+      console.error("Error in sending message:", error);
+    }
+
     try {
         const result = await window.electron.processFiles(
           {
@@ -113,48 +137,38 @@ export default function HomePage() {
     setInputFiles([]);
     setOutputDir("");
     setOutputFileName("");
+    setProcessStatus("waiting");
   }
 
   async function onSelectFiles(files: FileList | null) {
-    if (files) {
-      const fileArray = await Promise.all(
-        Array.from(files).map(async (file) => {
-          return {
-            name: file.name,
-            data: Array.from(new Uint8Array(await file.arrayBuffer())), // Convert to serializable data
-          };
-        })
-      );
-      console.log(fileArray);
+    if (!files) return;
+    const selected_files: FileStatus[] = await Promise.all(
+      Array.from(files).map(async (file) => {
+        return {
+          name: file.name,
+          data: Array.from(new Uint8Array(await file.arrayBuffer())), // Convert to serializable data
+          status: "selected",
+        };
+      })
+    );
+    const filtered_files: FileStatus[] = [];
+    const valid1 = filter_duplicate_filesname_new(selected_files);
+    const valid2 = filter_duplicate_filesname_new_old(valid1.approved_files, inputFiles);
+    filtered_files.push(...valid2.approved_files);
+    console.log("filtered_files", filtered_files);
+    setInputFiles([...inputFiles, ...filtered_files]);
 
-      try {
-        const result = await window.electron.copyFiles(fileArray);
-        console.log("Message sent, received in main process:", result);
-        setInputFiles([...createFileStatus(files)]);
-      } catch (error) {
-        console.error("Error in sending message:", error);
-      }
+    if (valid1.duplicate || valid2.duplicate) {
+      return <FileSelectErrorDialog handleClose={() => setDialogOpen(false)} duplicate_new_files={valid1.duplicate_files} duplicate_new_old_files={valid2.duplicate_files} />;
     }
-  }
-
-  function createFileStatus(files: FileList) {
-    let temp_status: FileStatus[] = [];
-    Array.from(files).map((file) => {
-      let item: FileStatus = {
-        name: file.name,
-        status: "selected",
-      };
-      temp_status.push(item);
-    });
-
-    return temp_status;
+    console.log(dialogOpen);
   }
 
   async function handleSelectDirectory(){
     const selectedPath = await window.electron.selectDirectory();
     if (selectedPath){
       console.log(selectedPath);
-      setOutputDir(selectedPath.replace(/\\/g, "/"));
+      setOutputDir(selectedPath);
     }
   }
 
@@ -169,51 +183,62 @@ export default function HomePage() {
 
   function validateInputFile(){
     if (!inputFiles || inputFiles.length === 0) return false;
+    return true;
+  }
+
+  function validateOutputDir(){
+    if (!outputDir) return false;
+    return true;
   }
 
   return (
-    <>
       <article className="scanner">
         <section className="selection">
           {/* template select component */}
-          <TemplateSelect
-            templates={templates}
-            currentTemplate={template}
-            setTemplate={setTemplate}
-          />
-          <div className="field-card">
-            <p className="field-name">Select Files or Folder</p>
-            <span className="button-group">
-              <input
-                id="file-input"
-                type="file"
-                multiple
-                onChange={(e) => onSelectFiles(e.target.files)}
-              />
-              <label htmlFor="file-input" className="file-label">
-                Select Files
-              </label>
+          <div className="form">
+            <TemplateSelect
+              templates={templates}
+              currentTemplate={template}
+              setTemplate={setTemplate}
+            />
+            <div className="field-card">
+              <p className="field-name">Select Files or Folder</p>
+              <span className="button-group">
+                <input
+                  id="file-input"
+                  type="file"
+                  multiple
+                  onChange={(e) => {onSelectFiles(e.target.files); e.target.value = "";}}
+                />
+                <label htmlFor="file-input" className="file-label">
+                  Select Files
+                </label>
 
-              {/* @ts-expect-error */}
-              <input id="folder-input" directory="" webkitdirectory="" type="file" />
-              <label htmlFor="folder-input" className="file-label">
-                Select Folder
-              </label>
-              {/* this damn here by the lazy developer */}
-              {/* https://stackoverflow.com/questions/71444475/webkitdirectory-in-typescript-and-react */}
-            </span>
+                {/* @ts-expect-error */}
+                <input id="folder-input" directory="" webkitdirectory="" type="file" onChange={(e) => onSelectFiles(e.target.files)}/>
+                <label htmlFor="folder-input" className="file-label">
+                  Select Folder
+                </label>
+                {/* this damn here by the lazy developer */}
+                {/* https://stackoverflow.com/questions/71444475/webkitdirectory-in-typescript-and-react */}
+              </span>
+            </div>
+            <div className="field-card">
+              <p className="field-name">Select Output Folder</p>
+              <span>
+                <button className="file-label" onClick={handleSelectDirectory}>Select Folder</button>
+              </span>
+              
+            </div>
+            <div className="field-card">
+              <p className="field-name">Output File Name</p>
+              <span className="button-group">
+                <input type="text" onChange={(e) => setOutputFileName(e.target.value)} placeholder="Enter Your Project Name" value={outputFileName}/>
+              </span>
+            </div>
           </div>
-          <div className="field-card">
-            <p className="field-name">Select Output Folder</p>
-            <button className="file-label" onClick={handleSelectDirectory}>Select Folder</button>
-          </div>
-          <div className="field-card">
-            <p className="field-name">Output File Name</p>
-            <span className="button-group">
-              <input type="text" onChange={(e) => setOutputFileName(e.target.value)} placeholder="Enter Your Project Name" value={outputFileName}/>
-            </span>
-          </div>
-          <div className="field-card top-space ">
+
+          <div className="field-card action-group">
             <span className="ghost"></span>
             <span className="button-group">
               <button className="icon-button cancel" onClick={() => onCancel()}>
@@ -222,12 +247,29 @@ export default function HomePage() {
                 </svg>
                 <p>Cancel</p>
               </button>
-              <button className="icon-button submit" onClick={() => onProcessFiles()}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.301 5.24438C6.09395 7.33359 5.99316 9.43196 5.999 11.5314C5.999 14.3324 6.169 16.5284 6.301 17.8204C8.21295 16.9519 10.0803 15.9884 11.896 14.9334C13.7169 13.8887 15.4844 12.7536 17.192 11.5324C15.4848 10.3099 13.7176 9.17343 11.897 8.12738C10.0809 7.07373 8.21321 6.11153 6.301 5.24438ZM4.396 4.29638C4.42301 4.06932 4.50261 3.8517 4.62848 3.6608C4.75435 3.4699 4.92302 3.311 5.12108 3.19673C5.31914 3.08246 5.54113 3.01596 5.76939 3.00254C5.99766 2.98911 6.22591 3.02912 6.436 3.11938C7.498 3.57338 9.878 4.65238 12.898 6.39538C15.919 8.13938 18.044 9.66238 18.967 10.3534C19.755 10.9444 19.757 12.1164 18.968 12.7094C18.054 13.3964 15.955 14.8994 12.898 16.6654C9.838 18.4314 7.486 19.4974 6.434 19.9454C5.528 20.3324 4.514 19.7454 4.396 18.7684C4.258 17.6264 4 15.0334 4 11.5314C4 8.03138 4.257 5.43938 4.396 4.29638Z" fill="white"/>
-                </svg>
-                <p>Start Processing</p>
-              </button>
+              { processStatus === "waiting" ? 
+                <button className="icon-button submit" onClick={() => onProcessFiles()}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.301 5.24438C6.09395 7.33359 5.99316 9.43196 5.999 11.5314C5.999 14.3324 6.169 16.5284 6.301 17.8204C8.21295 16.9519 10.0803 15.9884 11.896 14.9334C13.7169 13.8887 15.4844 12.7536 17.192 11.5324C15.4848 10.3099 13.7176 9.17343 11.897 8.12738C10.0809 7.07373 8.21321 6.11153 6.301 5.24438ZM4.396 4.29638C4.42301 4.06932 4.50261 3.8517 4.62848 3.6608C4.75435 3.4699 4.92302 3.311 5.12108 3.19673C5.31914 3.08246 5.54113 3.01596 5.76939 3.00254C5.99766 2.98911 6.22591 3.02912 6.436 3.11938C7.498 3.57338 9.878 4.65238 12.898 6.39538C15.919 8.13938 18.044 9.66238 18.967 10.3534C19.755 10.9444 19.757 12.1164 18.968 12.7094C18.054 13.3964 15.955 14.8994 12.898 16.6654C9.838 18.4314 7.486 19.4974 6.434 19.9454C5.528 20.3324 4.514 19.7454 4.396 18.7684C4.258 17.6264 4 15.0334 4 11.5314C4 8.03138 4.257 5.43938 4.396 4.29638Z" fill="white"/>
+                  </svg>
+                  <p>Start Processing</p>
+                </button>
+              : processStatus === "running" ?
+                <button className="icon-button disabled" >
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-155.5t86-127Q252-817 325-848.5T480-880q17 0 28.5 11.5T520-840q0 17-11.5 28.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-17 11.5-28.5T840-520q17 0 28.5 11.5T880-480q0 82-31.5 155t-86 127.5q-54.5 54.5-127 86T480-80Z"/>
+                  </svg>
+                  <p>Running</p>
+                </button>
+              : 
+                <button className="icon-button success">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/>
+                  </svg>
+                  <p>Complete</p>
+                </button>
+              }
+              
             </span>
           </div>
         </section>
@@ -235,12 +277,12 @@ export default function HomePage() {
         <section className="progress">
           <h2 className="title">Progress</h2>
           <div className='file-list'>
-            {inputFiles.map((file) => (
+            {inputFiles.map((file, idx) => (
               <div key={file.name} className='small-wide-card'>
                 <p className="file-name">{file.name}</p>
                 {
                   file.status === 'selected' ? 
-                    <button className="remove" >
+                    <button className="remove" onClick={() => setInputFiles(inputFiles.filter((_, i) => i !== idx))}>
                       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
                         <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
                       </svg>
@@ -252,6 +294,5 @@ export default function HomePage() {
           </div>
         </section>
       </article>
-    </>
   );
 }
