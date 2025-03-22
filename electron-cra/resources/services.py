@@ -1,7 +1,7 @@
 import os
 from document import *
 
-def process_file_as_sample(target, output_dir="/content/invoice_data.xlsx"):
+def process_file_as_sample(target, output_dir="/content/"):
     try:
         print(f"Processing: {target}")
 

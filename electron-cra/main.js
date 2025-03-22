@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { spawn, exec } = require("child_process");
 const readline = require("readline");
+// const pdfPoppler = require('pdf-poppler');
 
 let mainWindow;
 
@@ -12,7 +13,12 @@ const baseTempDir = path.join(
   "invoice-data-gathering-app"
 );
 
-// Define folders
+const PermDir = path.join(
+  app.getPath("userData"),
+  "userData"
+);
+
+// Define temp folders
 const folders = {
   base: baseTempDir,
   raw: path.join(baseTempDir, "src", "raw-file"),
@@ -20,8 +26,19 @@ const folders = {
   temp: path.join(baseTempDir, "src", "temp"),
   template: {
     plain: path.join(baseTempDir, "src", "template", "plain"),
+    plainpng: path.join(baseTempDir, "src", "template", "plainpng"),
     bounded: path.join(baseTempDir, "src", "template", "bounded"),
   },
+};
+
+// Define perm folders
+const perm_folders = {
+  base: PermDir,
+  template: {
+    base: path.join(PermDir, "template"),
+    image: path.join(PermDir, "template", "image"),
+  },
+  process: path.join(PermDir, "process"),
 };
 
 function createWindow() {
@@ -43,6 +60,31 @@ function createWindow() {
     protocol: "file:",
   });
   mainWindow.loadURL(startUrl);
+}
+
+function checkAndCreatePermStorage() {
+  const recreateFolder = (folderPath) => {
+    if (fs.existsSync(folderPath)) {
+      fs.rmSync(folderPath, { recursive: true, force: true });
+    }
+    fs.mkdirSync(folderPath, { recursive: true });
+  };
+  
+  console.log("Checking Storage directories...");
+  Object.values(perm_folders).forEach((folder) => {
+    if (typeof folder === "object") {
+      Object.values(folder).forEach(recreateFolder);
+    } else {
+      recreateFolder(folder);
+    }
+  });
+  
+  const dataFilePath = path.join(perm_folders.template.base, 'data.json');
+
+  if (!fs.existsSync(dataFilePath)) {
+    fs.writeFileSync(dataFilePath, '[]');
+  }
+  console.log("/ Confirm Storage Exsisted at "  + perm_folders.base + "\n");
 }
 
 function createFileStructure() {
@@ -145,20 +187,77 @@ async function runPythonProcess(input_dir, output_dir, output_file_name, selecte
   }
 }
 
-async function runPythonTemplate() {
+async function runPythonTemplate(input_path, output_path) {
   try {
     console.log("Running template.py...");
-    await runCommand("python", ['-u', path.join(folders.base, "template.py")], folders.base);
+    await runCommand("python", [
+      "-u",
+      path.join(folders.base, "template.py"),
+      input_path,
+      output_path,
+    ], folders.base);
 
-    console.log("✅ Processing completed!");
+    console.log("✅ Scanning Template Field Completed!");
   } catch (error) {
     console.error("❌ Error:", error.message);
   }
 }
 
+
+
+// API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
+// API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
+
+function getTemplateData(){
+  const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
+  if (templatesFilePath) {
+    return JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
+  }
+  return [];
+}
+
+function postTemplateData(name, image, field){
+  const templates = getTemplateData();
+  
+  function generateNewId() {
+    if (templates.length === 0) return 1; // ถ้าไม่มีข้อมูลให้เริ่มที่ 1
+
+    const maxId = Math.max(...templates.map(item => item.id)); // หาค่า id ที่สูงสุด
+    return maxId + 1;
+  }
+
+  const id = generateNewId();
+  const imagePath = path.join(perm_folders.template.image, id.toString(), '.png');
+  fs.writeFileSync(path.perm_folders.template.image, image);
+  const newTemplate = {
+    id: string,
+    name: name,
+    image: imagePath,
+    accepted_field: field}
+  templates.push(newTemplate);
+  fs.writeFileSync(perm_folders.template.data, JSON.stringify(templates));
+  return true;
+}
+
+// function deleteTemplateData(name){
+//   const templates = getTemplateData();
+//   templates.find(index, 1);
+//   fs.writeFileSync(perm_folders.template.data, JSON.stringify(templates));
+// }
+
+
+
+
+
+
+
+// RUN APP /////////////////////// RUN APP //////////////////////  RUN APP ////////////////// RUN APP ////////////////////////////////////////
+// RUN APP /////////////////////// RUN APP //////////////////////  RUN APP ////////////////// RUN APP ////////////////////////////////////////
+
 app.whenReady().then(() => {
   createWindow();
   createFileStructure();
+  checkAndCreatePermStorage();
 
   // handle upload input file
   ipcMain.handle("copy-files", async (_event, files) => {
@@ -197,20 +296,101 @@ app.whenReady().then(() => {
     return true;
   });
 
+  // handle fetch templates
+  ipcMain.handle("fetch-templates", async () => {
+    console.log("/ Fetching Templates.\n");
+    return getTemplateData();
+  });
+
   // handle upload template
   ipcMain.handle("upload-template", async (_event, file) => {
     const plainTemplateFolder = folders.template.plain;
-    console.log("Saving file to ", plainTemplateFolder, "...");
+    const plainTemplateFilePath = path.join(plainTemplateFolder, file.name);
 
-    //save file
-    fs.writeFile(path.join(plainTemplateFolder, file.name), Buffer.from(file.data), (err) => {
+    // delete existing plain template
+    if (fs.existsSync(plainTemplateFolder)) {
+      fs.readdirSync(plainTemplateFolder).forEach(file => {
+        const filePath = path.join(plainTemplateFolder, file);
+        fs.rmSync(filePath, { recursive: true, force: true });
+      });
+    }
+    console.log("Saving Plain Template file to ", plainTemplateFolder, "...");
+
+    // write plain template file to temp folder
+    fs.writeFile(plainTemplateFilePath, Buffer.from(file.data), (err) => {
       if (err) {
         console.error("File saving error:", err);
       } else {
-        console.log("/ File saved:", file.name);
+        console.log("/ Plain Template File saved:", file.name, '\n');
       }
     });
-    runPythonTemplate();
+    
+    // convert plain template to png for preview
+    // pdfPoppler.convert(plainTemplateFilePath, {format: 'png', out_dir: plainPngTemplateFolder, out_prefix: file.name.split[0], page: 1})
+    // .then(() => {
+    //   console.log('Conversion complete');
+    // })
+    // .catch((error) => {
+    //   console.error('Error:', error);
+    // });
+    
+    // // return plain template image to user
+    // const imageData = fs.readFileSync(plainPngTemplateFilePath).toString("base64");
+    // if (imageData) {
+    //   return imageData;
+    // }
+    // else{
+    //   return null;
+    // }
+    return null;
+  });
+
+  ipcMain.handle("process-template", async (_event) => {
+    const plainTemplateFolder = folders.template.plain;
+    const boundedTemplateFolder = folders.template.bounded;
+    const fileName = fs.readdirSync(plainTemplateFolder)[0];
+    console.log("fileName: ", fileName);
+    const plainTemplateFilePath = path.join(plainTemplateFolder, fileName);
+    const boundedTemplateFilePath = path.join(boundedTemplateFolder, fileName.split('.')[0] + '.png');
+    console.log("plainTemplateFilePath: ", plainTemplateFilePath);
+    console.log("boundedTemplateFilePath: ", boundedTemplateFilePath);
+    // delete existing bounded template
+    console.log("Deleting Old template...");
+    if (fs.existsSync(boundedTemplateFolder)) {
+      fs.readdirSync(boundedTemplateFolder).forEach(file => {
+        const filePath = path.join(boundedTemplateFolder, file);
+        // ตรวจสอบว่าเป็นไฟล์หรือไม่
+        if (fs.statSync(filePath).isFile()) {
+          fs.rmSync(filePath);
+        }
+      });
+    }
+    
+    // run python and save bounding-box image to bounded template folder
+    await runPythonTemplate(plainTemplateFilePath, boundedTemplateFolder);
+    console.log("/ Boxed Template Saved to " , boundedTemplateFilePath, "Success.\n");
+
+    let targetFile = fs.readdirSync(boundedTemplateFolder)[0];
+    let targetFilePath = path.join(boundedTemplateFolder, targetFile);
+
+    // return bounded template image to user
+    const imageData = fs.readFileSync(targetFilePath).toString("base64");
+    if (imageData) {
+      return imageData;
+    }
+    else{
+      return null;
+    }
+  });
+
+  ipcMain.handle("save-template", async (_event, name, field) => {
+    const boundedTemplateFolder = folders.template.bounded;
+    const fileName = fs.readdirSync(boundedTemplateFolder)[0];
+    const boundedTemplateFilePath = path.join(boundedTemplateFolder, fileName);
+
+    const image = fs.readFileSync(boundedTemplateFilePath);
+    postTemplateData(name, image, field);
+    console.log("/ Saved Template to ", perm_folders.template, "Success.\n");
     return true;
   });
 });
