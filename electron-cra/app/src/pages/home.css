@@ -38,22 +38,6 @@ article.scanner input[type="file"] {
   display: none; /* Hide default input */
 }
 
-article.scanner .file-label {
-  padding: var(--button-padding-y) var(--button-padding-x);
-  border-radius: var(--button-rounding);
-  background-color: var(--dark-blue);
-  color: var(--white);
-  font-size: var(--small-font-size);
-  font-weight: var(--medium-font-weight);
-  box-shadow: var(--down-medium-shadow);
-  border: none;
-}
-
-article.scanner .file-label:hover {
-  background-color: var(--navy);
-  cursor: pointer;
-}
-
 article.scanner .field-card {
   padding: var(--field-card-padding);
   color: var(--black);
@@ -74,7 +58,7 @@ article.scanner .button-group {
   gap: var(--button-gap);
 }
 
-article.scanner button.icon-button{
+article.scanner .icon-button{
   border-radius: var(--button-rounding);
   padding: var(--button-padding-y) var(--button-padding-x);
   box-shadow: var(--down-medium-shadow);
@@ -186,6 +170,16 @@ button.submit{
   background-color: var(--green);
 }
 
+.icon-button.file-trigger{
+  color: var(--white);
+  border: none;
+  background-color: var(--dark-blue)
+}
+
+.icon-button.file-trigger:hover{
+  background-color: var(--navy)
+}
+
 button.cancel:hover{
   background-color: var(--red-opacity-20);
 }
@@ -209,6 +203,6 @@ button.success{
   cursor: not-allowed;
 }
 
-button:hover{
+button:hover, .icon-button:hover{
   cursor: pointer;
 }
