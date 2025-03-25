@@ -4,10 +4,12 @@ export interface ElectronAPI {
     processFiles: (config: ProcessConfig) => Promise<boolean>;
     onProcessUpdate: (callback: (data: string) => void) => void;
     removeProcessUpdateListener: () => void;
-    fetchTemplates: () => Promise<Template[]>;
+    getTemplates: () => Promise<Template[]>;
     uploadTemplate: (file: ElectronFile) => Promise<string | null>;
     processTemplate: () => Promise<string | null>;
     saveTemplate: (name: string, acceptedField: number[]) => Promise<boolean>;
+    putTemplateName: (id: string, name: string) => Promise<boolean>;
+    putTemplateField: (id:  string, field: string) => Promise<boolean>;
   }
   interface ProcessConfig {
     output_dir: string;

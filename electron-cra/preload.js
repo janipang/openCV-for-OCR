@@ -10,8 +10,10 @@ contextBridge.exposeInMainWorld("electron", {
     removeProcessUpdateListener: () => {
         ipcRenderer.removeAllListeners('process-update');
     },
-    fetchTemplates: () => ipcRenderer.invoke('fetch-templates'),
+    getTemplates: () => ipcRenderer.invoke('get-templates'),
     uploadTemplate: (file) => ipcRenderer.invoke("upload-template", file),
     processTemplate: () => ipcRenderer.invoke("process-template"),
     saveTemplate: (name, image, acceptedField) => ipcRenderer.invoke('save-template', name, image, acceptedField),
+    putTemplateName: (id, name) => ipcRenderer.invoke('put-template-name', id, name),
+    putTemplateField: (id, field) => ipcRenderer.invoke('put-template-field', id, field),
 });

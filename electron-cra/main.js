@@ -352,8 +352,8 @@ app.whenReady().then(() => {
     return true;
   });
 
-  // handle fetch templates
-  ipcMain.handle("fetch-templates", async () => {
+  // handle get templates
+  ipcMain.handle("get-templates", async () => {
     console.log("/ Fetched Templates Data Success\n");
     return getTemplateData();
   });
@@ -448,6 +448,16 @@ app.whenReady().then(() => {
     postTemplateData(name, image, field);
     console.log("/ Saved Template to ", perm_folders.template, "Success.\n");
     return true;
+  });
+  
+  // handle put template name
+  ipcMain.handle("put-template-name", async (_event, id, name) => {
+    return putTemplateName(id, name);
+  });
+  
+  // handle put template field
+  ipcMain.handle("put-template-field", async (_event, id, field) => {
+    return putTemplateNameField(id, field);
   });
 });
 
