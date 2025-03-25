@@ -78,7 +78,7 @@ function checkAndCreatePermStorage() {
     }
   });
   
-  const dataFilePath = path.join(perm_folders.template.image, 'data.json');
+  const dataFilePath = path.join(perm_folders.template.base, 'data.json');
   if (!fs.existsSync(dataFilePath)) {
     fs.writeFileSync(dataFilePath, '[]');
   }
@@ -214,7 +214,6 @@ function getRawTemplateData() {
 
 function getTemplateData() {
   const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
-  console.log("templatesFilePath: ", templatesFilePath)
   const stored_data = JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
 
   stored_data.forEach((item) => {
@@ -240,6 +239,7 @@ function getRawTemplateDataById(id) {
 
 function postTemplateData(name, image, field){
   const templates = getRawTemplateData();
+  const templatesFilePath = path.join(perm_folders.template.base, "data.json");
   
   function generateNewId() {
     if (templates.length === 0) return 1; // ถ้าไม่มีข้อมูลให้เริ่มที่ 1
@@ -257,12 +257,13 @@ function postTemplateData(name, image, field){
     image: imagePath,
     accepted_field: field}
   templates.push(newTemplate);
-  fs.writeFileSync(perm_folders.template.data, JSON.stringify(templates, null, 2));
+  fs.writeFileSync(templatesFilePath, JSON.stringify(templates, null, 2));
   return true;
 }
 
 function putTemplateName(id, newName) {
   const templates = getRawTemplateData();
+  const templatesFilePath = path.join(perm_folders.template.base, "data.json");
   
   const updatedTemplates = templates.map(item => {
     if (item.id === id) {
@@ -270,13 +271,15 @@ function putTemplateName(id, newName) {
     }
     return item;
   });
+  console.log("updatedTemplates: ", updatedTemplates)
 
-  fs.writeFileSync(perm_folders.template.data, JSON.stringify(updatedTemplates, null, 2));
+  fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
   return true;
 }
 
-function putTemplateNameField(id, newField) {
+function putTemplateField(id, newField) {
   const templates = getRawTemplateData();
+  const templatesFilePath = path.join(perm_folders.template.base, "data.json");
   
   const updatedTemplates = templates.map(item => {
     if (item.id === id) {
@@ -285,7 +288,7 @@ function putTemplateNameField(id, newField) {
     return item;
   });
 
-  fs.writeFileSync(perm_folders.template.data, JSON.stringify(updatedTemplates, null, 2));
+  fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
   return true;
 }
 
@@ -452,12 +455,13 @@ app.whenReady().then(() => {
   
   // handle put template name
   ipcMain.handle("put-template-name", async (_event, id, name) => {
-    return putTemplateName(id, name);
+    const result = putTemplateName(id, name);
+    return result
   });
   
   // handle put template field
   ipcMain.handle("put-template-field", async (_event, id, field) => {
-    return putTemplateNameField(id, field);
+    return putTemplateField(id, field);
   });
 });
 
