@@ -63,24 +63,22 @@ function createWindow() {
 }
 
 function checkAndCreatePermStorage() {
-  const recreateFolder = (folderPath) => {
-    if (fs.existsSync(folderPath)) {
-      fs.rmSync(folderPath, { recursive: true, force: true });
+  const createFolderIfNotExist = (folderPath) => {
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
     }
-    fs.mkdirSync(folderPath, { recursive: true });
   };
   
   console.log("Checking Storage directories...");
   Object.values(perm_folders).forEach((folder) => {
     if (typeof folder === "object") {
-      Object.values(folder).forEach(recreateFolder);
+      Object.values(folder).forEach(createFolderIfNotExist);
     } else {
-      recreateFolder(folder);
+      createFolderIfNotExist(folder);
     }
   });
   
-  const dataFilePath = path.join(perm_folders.template.base, 'data.json');
-
+  const dataFilePath = path.join(perm_folders.template.image, 'data.json');
   if (!fs.existsSync(dataFilePath)) {
     fs.writeFileSync(dataFilePath, '[]');
   }
@@ -208,16 +206,40 @@ async function runPythonTemplate(input_path, output_path) {
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
 
-function getTemplateData(){
+function getRawTemplateData() {
   const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
-  if (templatesFilePath) {
-    return JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
-  }
-  return [];
+  const stored_data = JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
+  return stored_data;
+}
+
+function getTemplateData() {
+  const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
+  console.log("templatesFilePath: ", templatesFilePath)
+  const stored_data = JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
+
+  stored_data.forEach((item) => {
+    if (item.image) {
+      item.image = path.join(perm_folders.template.base, item.image);
+    }
+  });
+ 
+  console.log(stored_data);
+  return stored_data;
+}
+
+function getRawTemplateDataById(id) {
+  const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
+  const stored_data = JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
+  stored_data.forEach((item) => {
+    if (item.id == id) {
+      return item
+    }
+  });
+  return null
 }
 
 function postTemplateData(name, image, field){
-  const templates = getTemplateData();
+  const templates = getRawTemplateData();
   
   function generateNewId() {
     if (templates.length === 0) return 1; // ถ้าไม่มีข้อมูลให้เริ่มที่ 1
@@ -235,16 +257,50 @@ function postTemplateData(name, image, field){
     image: imagePath,
     accepted_field: field}
   templates.push(newTemplate);
-  fs.writeFileSync(perm_folders.template.data, JSON.stringify(templates));
+  fs.writeFileSync(perm_folders.template.data, JSON.stringify(templates, null, 2));
   return true;
 }
 
-// function deleteTemplateData(name){
-//   const templates = getTemplateData();
-//   templates.find(index, 1);
-//   fs.writeFileSync(perm_folders.template.data, JSON.stringify(templates));
-// }
+function putTemplateName(id, newName) {
+  const templates = getRawTemplateData();
+  
+  const updatedTemplates = templates.map(item => {
+    if (item.id === id) {
+      return { ...item, name: newName };
+    }
+    return item;
+  });
 
+  fs.writeFileSync(perm_folders.template.data, JSON.stringify(updatedTemplates, null, 2));
+  return true;
+}
+
+function putTemplateNameField(id, newField) {
+  const templates = getRawTemplateData();
+  
+  const updatedTemplates = templates.map(item => {
+    if (item.id === id) {
+      return { ...item, accepted_field: newField };
+    }
+    return item;
+  });
+
+  fs.writeFileSync(perm_folders.template.data, JSON.stringify(updatedTemplates, null, 2));
+  return true;
+}
+
+function deleteTemplateataById(id) {
+  const templatesFilePath = path.join(perm_folders.template.base, "data.json");
+  const templates = getRawTemplateData();
+  const updatedTemplates = templates.filter(item => item.id !== id);
+  if (updatedTemplates.length === templates.length) {
+    console.log(`❌ ไม่พบ template ที่มี id: ${id}`);
+    return;
+  }
+  fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
+  console.log(`✅ ลบ template ที่มี id: ${id} สำเร็จ`);
+  return true;
+}
 
 
 
@@ -298,7 +354,7 @@ app.whenReady().then(() => {
 
   // handle fetch templates
   ipcMain.handle("fetch-templates", async () => {
-    console.log("/ Fetching Templates.\n");
+    console.log("/ Fetched Templates Data Success\n");
     return getTemplateData();
   });
 
