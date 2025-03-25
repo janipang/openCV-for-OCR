@@ -9,7 +9,7 @@ export interface ElectronAPI {
     processTemplate: () => Promise<string | null>;
     saveTemplate: (name: string, acceptedField: number[]) => Promise<boolean>;
     putTemplateName: (id: string, name: string) => Promise<boolean>;
-    putTemplateField: (id:  string, field: string) => Promise<boolean>;
+    putTemplateField: (id:  string, field: number[]) => Promise<boolean>;
   }
   interface ProcessConfig {
     output_dir: string;

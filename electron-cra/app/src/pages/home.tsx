@@ -5,6 +5,7 @@ import Template from "../types/template";
 import FileStatus from "../types/file-status";
 import { filter_duplicate_filesname_new, filter_duplicate_filesname_new_old } from "../services/validate_file";
 import FileSelectErrorDialog from "../component/file_select_error_dialog";
+import { validateInputFile, validateOutputDir, validateOutputFileName } from "../services/validate";
 
 export default function HomePage() {
   const templates: Template[] = [
@@ -98,15 +99,15 @@ export default function HomePage() {
 
 
   async function onProcessFiles() {
-    if (!validateInputFile()){
+    if (!validateInputFile(inputFiles)){
       alert("please select only pdf file to process");
       return false;
     }
-    if (!validateOutputFileName()){
+    if (!validateOutputFileName(outputFileName)){
       alert("please correct your output file name");
       return false;
     }
-    if (!validateOutputDir()){
+    if (!validateOutputDir(outputDir)){
       alert("please correct your output dir");
       return false;
     }
@@ -181,25 +182,6 @@ export default function HomePage() {
       console.log(selectedPath);
       setOutputDir(selectedPath);
     }
-  }
-
-  function validateOutputFileName(){
-    const regex = /^[^\\/:*?"<>|.]+$/;
-    console.log(outputFileName);
-    if (!regex.test(outputFileName)) {
-      return false;
-    }
-    return true;
-  }
-
-  function validateInputFile(){
-    if (!inputFiles || inputFiles.length === 0) return false;
-    return true;
-  }
-
-  function validateOutputDir(){
-    if (!outputDir) return false;
-    return true;
   }
 
   return (

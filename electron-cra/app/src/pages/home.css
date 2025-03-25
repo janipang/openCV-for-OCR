@@ -38,14 +38,6 @@ article.scanner input[type="file"] {
   display: none; /* Hide default input */
 }
 
-article.scanner .field-card {
-  padding: var(--field-card-padding);
-  color: var(--black);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 article.scanner .field-name {
   font-size: var(--medium-font-size);
   font-weight: var(--regular-font-weight);
@@ -56,18 +48,6 @@ article.scanner .button-group {
   display: flex;
   align-items: center;
   gap: var(--button-gap);
-}
-
-article.scanner .icon-button{
-  border-radius: var(--button-rounding);
-  padding: var(--button-padding-y) var(--button-padding-x);
-  box-shadow: var(--down-medium-shadow);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  font-weight: var(--medium-font-weight);
-  font-size: var(--small-font-size);
 }
 
 article.scanner .span {

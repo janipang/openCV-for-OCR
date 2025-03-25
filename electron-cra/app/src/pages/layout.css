@@ -1,24 +1,24 @@
 .div-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-      Arial, sans-serif;
-    display: grid;
-    grid-template-columns: 1fr 6fr;
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    position: relative;
-    background-color: #EBF1FD;
-  }
-  
-  main {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-  }
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  display: grid;
+  grid-template-columns: 1fr 6fr;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  background-color: #ebf1fd;
+}
 
-.icon-button{
+main {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.icon-button {
   border-radius: var(--button-rounding);
   padding: var(--button-padding-y) var(--button-padding-x);
   box-shadow: var(--down-medium-shadow);
@@ -28,5 +28,13 @@
   gap: 10px;
   font-weight: var(--medium-font-weight);
   font-size: var(--small-font-size);
+  border: none;
 }
-  
+
+.field-card {
+  padding: var(--field-card-padding);
+  color: var(--black);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
