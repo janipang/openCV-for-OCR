@@ -34,6 +34,10 @@ const folders = {
 // Define perm folders
 const perm_folders = {
   base: PermDir,
+  backup: {
+    base: path.join(PermDir, "backup"),
+    list: path.join(PermDir, "backup", "list",),
+  },
   template: {
     base: path.join(PermDir, "template"),
     image: path.join(PermDir, "template", "image"),
@@ -78,9 +82,14 @@ function checkAndCreatePermStorage() {
     }
   });
   
-  const dataFilePath = path.join(perm_folders.template.base, 'data.json');
-  if (!fs.existsSync(dataFilePath)) {
-    fs.writeFileSync(dataFilePath, '[]');
+  const templateDataFilePath = path.join(perm_folders.template.base, 'data.json');
+  if (!fs.existsSync(templateDataFilePath)) {
+    fs.writeFileSync(templateDataFilePath, '[]');
+  }
+  
+  const backupDataFilePath = path.join(perm_folders.backup.base, 'data.json');
+  if (!fs.existsSync(backupDataFilePath)) {
+    fs.writeFileSync(backupDataFilePath, '[]');
   }
   console.log("/ Confirm Storage Exsisted at "  + perm_folders.base + "\n");
 }
@@ -222,6 +231,12 @@ async function runPngConverter(input_path, output_dir, page) {
 
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
+
+function getBackUps() {
+  const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
+  const stored_data = JSON.parse(fs.readFileSync(backUpsFilePath, 'utf8'));
+  return stored_data;
+}
 
 function getRawTemplateData() {
   const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
@@ -371,6 +386,12 @@ app.whenReady().then(() => {
     runPythonProcess(folders.raw , output_dir, output_file_name, selected_field);
     return true;
   });
+
+  // handle get backups
+  ipcMain.handle("get-backups", async () => {
+    console.log("/ Fetched BackUps Data Success\n");
+    return getBackUps();
+  })
 
   // handle get templates
   ipcMain.handle("get-templates", async () => {

@@ -1,9 +1,12 @@
+import BackUp from "./types/backup";
+
 export interface ElectronAPI {
     copyFiles: (files: ElectronFile[]) => Promise<boolean>;
     selectDirectory: () => Promise<string | null>;
     processFiles: (config: ProcessConfig) => Promise<boolean>;
     onProcessUpdate: (callback: (data: string) => void) => void;
     removeProcessUpdateListener: () => void;
+    getBackUps: () => Promise<BackUp[]>;
     getTemplates: () => Promise<Template[]>;
     uploadTemplate: (file: ElectronFile) => Promise<string | null>;
     processTemplate: () => Promise<string | null>;
