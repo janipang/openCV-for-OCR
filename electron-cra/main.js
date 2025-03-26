@@ -266,12 +266,13 @@ function postTemplateData(name, image, field){
   }
 
   const id = generateNewId();
-  const imagePath = path.join(perm_folders.template.image, id.toString(), '.png');
-  fs.writeFileSync(path.perm_folders.template.image, image);
+  const imageName = id.toString()+ '.png';
+  const imagePath = path.join(perm_folders.template.image, imageName);
+  fs.writeFileSync(imagePath, image);
   const newTemplate = {
-    id: string,
+    id: id,
     name: name,
-    image: imagePath,
+    image: imageName,
     accepted_field: field}
   templates.push(newTemplate);
   fs.writeFileSync(templatesFilePath, JSON.stringify(templates, null, 2));
