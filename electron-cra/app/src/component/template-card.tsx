@@ -2,6 +2,7 @@ import { useState } from "react";
 import { formatNumberRanges, parseNumberRanges, validateNumberRangeInput } from "../services/format-number";
 import { validateTemplateName } from "../services/validate";
 import Template from "../types/template";
+import './template-card.css'
 
 interface TemplateCardProps {
   templateData: Template;
@@ -20,6 +21,7 @@ export default function TemplateCard({
   const [fieldStatus, setFieldStatus] = useState<"viewing" | "editing">(
     "viewing"
   );
+  const [fieldDataDisplay, setFieldDataDisplay] = useState<string>(formatNumberRanges(templateData.accepted_field));
 
   return (
     <div className="template-card">
@@ -76,25 +78,29 @@ export default function TemplateCard({
       <div className="image">
         <img src={templateData.image} alt={templateData.name} />
       </div>
+      
+      <p className="field-name">Accepted Field</p>
 
       <span className="small-wide-card">
         <input
           type="text"
           className="field"
-          value={formatNumberRanges(templateData.accepted_field)}
+          value={fieldDataDisplay}
           disabled={fieldStatus == 'viewing'}
           onChange={(e) => {
-            setTemplateItemField(templateData.id, parseNumberRanges(e.target.value));
+            setFieldDataDisplay(e.target.value);
           }}
         />
         {fieldStatus == "editing" ? (
           <button
             onClick={async () => {
-              if (validateNumberRangeInput(formatNumberRanges(templateData.accepted_field))) {
+              const validate_result = validateNumberRangeInput(fieldDataDisplay);
+              if (validate_result.valid) {
+                setTemplateItemField(templateData.id, parseNumberRanges(fieldDataDisplay));
                 try {
                   const result = window.electron.putTemplateField(
                     templateData.id,
-                    templateData.accepted_field
+                    parseNumberRanges(fieldDataDisplay)
                   );
                   console.log( "putTemplateField send to main, received with status: ", result );
                   setFieldStatus('viewing');
@@ -102,7 +108,7 @@ export default function TemplateCard({
                   console.error("Error in sending putTemplateField:", error);
                 }
               } else {
-                alert('กรุณากรอกในรูปแบบ 1-2,7,8-10');
+                alert(validate_result.error);
               }
             }}
           >

@@ -216,9 +216,10 @@ function getTemplateData() {
   const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
   const stored_data = JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
 
+  // send the full imge path
   stored_data.forEach((item) => {
     if (item.image) {
-      item.image = path.join(perm_folders.template.base, item.image);
+      item.image = path.join(perm_folders.template.image, item.image);
     }
   });
  
@@ -278,6 +279,7 @@ function putTemplateName(id, newName) {
 }
 
 function putTemplateField(id, newField) {
+  console.log(`Start PutTemplatField to ${newField}...`)
   const templates = getRawTemplateData();
   const templatesFilePath = path.join(perm_folders.template.base, "data.json");
   
@@ -287,6 +289,7 @@ function putTemplateField(id, newField) {
     }
     return item;
   });
+  console.log("updatedTemplates", updatedTemplates)
 
   fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
   return true;

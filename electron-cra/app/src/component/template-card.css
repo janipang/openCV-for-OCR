@@ -1,0 +1,51 @@
+.template-card{
+  width: 100%;
+  height: 100%;
+  max-width: 450;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: var(--vertical-card-padding);
+  gap: var(--vertical-card-gap);
+  border-radius: var(--vertical-card-rounding);
+  box-shadow: var(--own-medium-shadow);
+}
+
+.template-card .small-wide-card{
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-card .small-wide-card input.name{
+  background: none;
+  color: var(--dark-gray);
+  font-size: var(--medium-font-size);
+  font-weight: var(--bold-font-weight);
+}
+
+.template-card .small-wide-card input.field{
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+  font-size: var(--medium-rare-font-size);
+  font-weight: var(--regular-font-weight);
+}
+
+.template-card p.field-name{
+  color: var(--dark-gray);
+  font-size: var(--medium-font-size);
+  font-weight: var(--bold-font-weight);
+}
+
+.template-card .image{
+  width: 100%;
+  aspect-ratio: 210/297;
+}
+
+.template-card .image img{
+  width: 100%;
+  height: 100%;
+}

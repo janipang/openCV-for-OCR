@@ -26,6 +26,7 @@
   --wide-card-padding: 1rem 1.25rem;
   --field-card-padding: 0.5rem 0rem;
   --small-wide-card-padding: 0.5rem 0.5rem;
+  --vertical-card-padding: 1.5rem;
 
   --main-article-gap: 0.75rem;
   --title-gap: 2.25rem;
@@ -33,11 +34,14 @@
   --template-tab-gap: 1.25rem;
   --small-wide-card-gap: 0.75rem;
   --file-list-gap: 0.75rem;
+  --vertical-card-gap: 0.875rem;
 
   --button-rounding: 0.5rem;
   --wide-card-rounding: 0.5rem;
+  --vertical-card-rounding: 0.75rem;
 
   --medium-font-size: 1.25rem;
+  --medium-rare-font-size: 1.125rem;
   --small-font-size: 1rem;
   --extra-small-font-size: 0.75rem;
 
