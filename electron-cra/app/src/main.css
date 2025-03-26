@@ -17,10 +17,8 @@
   --red-opacity-20: rgba(255, 59, 48, 0.2);
  
 
-  --main-article-padding-y: 2rem;
-  --main-article-padding-x: 3rem;
-  --side-article-padding-y: 2rem;
-  --side-article-padding-x: 1.5rem;
+  --main-article-padding: 2rem 3rem;
+  --side-article-padding-y: 2rem 1.5rem;
   --button-padding-y: 1rem;
   --button-padding-x: 1.25rem;
   --wide-card-padding: 1rem 1.25rem;

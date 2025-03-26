@@ -1,49 +1,71 @@
-.template-card{
-  width: 380px;
+.template-card {
+  height: 100%;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-rows: 35px 1fr;
   padding: var(--vertical-card-padding);
   gap: var(--vertical-card-gap);
   border-radius: var(--vertical-card-rounding);
   box-shadow: var(--own-medium-shadow);
+  margin: 0px;
+  background-color: var(--white);
 }
 
-.template-card .small-wide-card{
+.template .element {
+  overflow: hidden;
+}
+
+.template-card .small-wide-card {
   width: 100%;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin: 0rem;
 }
 
-.template-card .small-wide-card input.name{
+.template-card .small-wide-card input.name {
   background: none;
   color: var(--dark-gray);
   font-size: var(--medium-font-size);
   font-weight: var(--bold-font-weight);
+  border: none;
 }
 
-.template-card .small-wide-card input.field{
+.template-card .small-wide-card input.name:focus {
+  color: var(--dark-blue);
+}
+
+.template-card .small-wide-card input.field {
   background-color: var(--light-gray);
   color: var(--dark-gray);
   font-size: var(--medium-rare-font-size);
   font-weight: var(--regular-font-weight);
+  border: none;
 }
 
-.template-card p.field-name{
+.template-card .small-wide-card input.field:focus {
+  color: var(--dark-blue);
+}
+
+.template-card p.field-name {
   color: var(--dark-gray);
   font-size: var(--medium-font-size);
   font-weight: var(--bold-font-weight);
 }
-
-.template-card .image{
+.template-card .view-box {
+  height: 100%;
   width: 100%;
-  aspect-ratio: 210/297;
+  overflow-y: scroll;
 }
 
-.template-card .image img{
+.template-card .image {
+  aspect-ratio: 210/297;
+  position: relative;
+}
+
+.template-card .image img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }

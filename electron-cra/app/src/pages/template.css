@@ -19,7 +19,7 @@ article.template section.list {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: var(--main-article-padding-y) var(--main-article-padding-x);
+  padding: var(--main-article-padding);
   width: 100%;
   height: 100%;
   gap: var(--main-article-gap);
@@ -28,7 +28,7 @@ article.template section.list {
 }
 
 article.template section.create {
-  padding: var(--side-article-padding-y) var(--side-article-padding-x);
+  padding: var(--side-article-padding);
   background-color: var(--white);
   height: 100%;
   box-shadow: var(--left-medium-shadow);
@@ -51,7 +51,7 @@ article.template .top-bar{
 
 article.template .template-list{
   display: flex;
-  gap: var(--main-article-gap);
+  gap: calc(var(--main-article-gap)*2);
   width: 100%;
   overflow-x: scroll;
   box-sizing: border-box;

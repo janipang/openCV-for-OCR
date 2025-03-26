@@ -10,14 +10,14 @@ section.selection {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--main-article-padding-y) var(--main-article-padding-x);
+  padding: var(--main-article-padding);
   height: 100%;
   width: 100%;
   box-sizing: border-box;
 }
 
 section.progress {
-  padding: var(--side-article-padding-y) var(--side-article-padding-x);
+  padding: var(--side-article-padding);
   background-color: var(--white);
   height: 100%;
   box-shadow: var(--left-medium-shadow);

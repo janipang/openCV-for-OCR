@@ -22,7 +22,7 @@ export default function TemplateSelect({
   return (
     <div className="template-selector selector">
       <span className="top-bar">
-        <h2 className="field-name">Select Template</h2>
+        <p className="field-name">Select Template</p>
         <select
           name="template-select"
           id="select-box"

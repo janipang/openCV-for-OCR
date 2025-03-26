@@ -223,7 +223,6 @@ function getTemplateData() {
     }
   });
  
-  console.log(stored_data);
   return stored_data;
 }
 
@@ -272,14 +271,12 @@ function putTemplateName(id, newName) {
     }
     return item;
   });
-  console.log("updatedTemplates: ", updatedTemplates)
 
   fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
   return true;
 }
 
 function putTemplateField(id, newField) {
-  console.log(`Start PutTemplatField to ${newField}...`)
   const templates = getRawTemplateData();
   const templatesFilePath = path.join(perm_folders.template.base, "data.json");
   
@@ -289,7 +286,6 @@ function putTemplateField(id, newField) {
     }
     return item;
   });
-  console.log("updatedTemplates", updatedTemplates)
 
   fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
   return true;
@@ -414,8 +410,6 @@ app.whenReady().then(() => {
     console.log("fileName: ", fileName);
     const plainTemplateFilePath = path.join(plainTemplateFolder, fileName);
     const boundedTemplateFilePath = path.join(boundedTemplateFolder, fileName.split('.')[0] + '.png');
-    console.log("plainTemplateFilePath: ", plainTemplateFilePath);
-    console.log("boundedTemplateFilePath: ", boundedTemplateFilePath);
     // delete existing bounded template
     console.log("Deleting Old template...");
     if (fs.existsSync(boundedTemplateFolder)) {

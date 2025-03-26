@@ -14,7 +14,7 @@
     width: 100%;
 }
 
-.template-selector h2.field-name{
+.template-selector p.field-name{
     font-size: var(--medium-font-size);
     font-weight: var(--regular-font-weight);
     color: var(--black);
