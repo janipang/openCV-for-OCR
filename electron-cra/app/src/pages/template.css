@@ -11,7 +11,7 @@ article.template.viewing {
   grid-template-columns: 8fr;
 }
 
-article.template .create.viewing {
+article.template section.create.viewing {
   display: none;
 }
 
