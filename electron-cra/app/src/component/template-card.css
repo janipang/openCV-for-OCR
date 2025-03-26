@@ -59,6 +59,10 @@
   overflow-y: scroll;
 }
 
+.template-card .view-box::-webkit-scrollbar {
+  display: none;
+}
+
 .template-card .image {
   aspect-ratio: 210/297;
   position: relative;

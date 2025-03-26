@@ -2,8 +2,8 @@ import Template from "../types/template";
 import "./template-select.css";
 
 interface TemplateProps {
-  templates: Template[];
-  currentTemplate: Template;
+  templates: Template[] | null;
+  currentTemplate: Template | null;
   setTemplate: (template: Template) => void;
 }
 export default function TemplateSelect({
@@ -13,7 +13,7 @@ export default function TemplateSelect({
 }: TemplateProps) {
   function handleTemplateChange(template_name: string) {
     console.log(template_name);
-    const selected_template = templates.find(
+    const selected_template = templates!.find(
       (template) => template.name === template_name
     ) as Template;
     setTemplate(selected_template);
@@ -28,7 +28,7 @@ export default function TemplateSelect({
           id="select-box"
           onChange={(e) => handleTemplateChange(e.target.value)}
         >
-          {templates.map((template) => (
+          {templates?.map((template) => (
             <option value={template.name}>{template.name}</option>
           ))}
         </select>
@@ -36,7 +36,7 @@ export default function TemplateSelect({
 
       <div className="frame">
         <div className="picture">
-          <img src={currentTemplate.image} />
+          <img src={currentTemplate?.image} />
         </div>
       </div>
     </div>

@@ -31,15 +31,17 @@ main {
   border: none;
 }
 
-button, .icon-button {
+button,
+.icon-button {
   cursor: pointer;
 }
 
-p, h2{
+p,
+h2 {
   margin: 0px;
 }
 
-.loading-icon{
+.loading-icon {
   animation: rotate 3s infinite;
 }
 
@@ -53,5 +55,26 @@ p, h2{
 }
 
 @keyframes rotate {
-  100% {transform: rotate(360deg);}
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ////////////////////////////// SCROLL BAR //////////////////////////// */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dark-gray);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(#333333);
 }

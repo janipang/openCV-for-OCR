@@ -8,31 +8,9 @@ import FileSelectErrorDialog from "../component/file_select_error_dialog";
 import { validateInputFile, validateOutputDir, validateOutputFileName } from "../services/validate";
 
 export default function HomePage() {
-  const templates: Template[] = [
-    {
-      id: "bo001",
-      name: "template1",
-      image:
-        "https://i.pinimg.com/736x/ad/2d/45/ad2d4570c8a6f58c4e62fc0d2851b9ac.jpg",
-      accepted_field: [1, 3, 5, 7, 9, 10],
-    },
-    {
-      id: "bo002",
-      name: "template2",
-      image:
-        "https://th.bing.com/th/id/OIP.BADqZVZnDV9TbOI1Ws-7nAHaHa?rs=1&pid=ImgDetMain",
-      accepted_field: [1, 3, 5, 7, 9, 10],
-    },
-    {
-      id: "bo003",
-      name: "template3",
-      image:
-        "https://img.freepik.com/premium-photo/cartoon-scene-scene-with-person-monster-with-pond-background_869640-43707.jpg",
-      accepted_field: [1, 3, 5, 7, 9, 10],
-    },
-  ];
+  const [templates, setTemplates] = useState<Template[]>([]);
 
-  const [template, setTemplate] = useState<Template>(templates[0]);
+  const [template, setTemplate] = useState<Template | null>(null);
   const [inputFiles, setInputFiles] = useState<FileStatus[]>([]);
   const [outputDir, setOutputDir] = useState<string>("");
   const [outputFileName, setOutputFileName] = useState<string>("");
@@ -44,6 +22,22 @@ export default function HomePage() {
   const [valid2DuplicateFiles, setValid2DuplicateFiles] = useState<FileStatus[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    async function loadTemplateData(){
+      try {
+        const result = await window.electron.getTemplates();
+        console.log("copyFiles sent, received in main process:", result);
+        setTemplates(result);
+        setTemplate(result[0])
+      } catch (error) {
+        console.error("Error in sending message:", error);
+      }
+    }
+
+    loadTemplateData();
+  }, []);
+
+  // receive process update message
   useEffect(() => {
     if (window.electron?.onProcessUpdate) {
       const handler = (data: string) => {
@@ -126,7 +120,7 @@ export default function HomePage() {
           {
             output_dir: outputDir,
             output_file_name: outputFileName,
-            selected_field: template.accepted_field,
+            selected_field: template!.accepted_field,
           });
 
         // set status of all file as pending
