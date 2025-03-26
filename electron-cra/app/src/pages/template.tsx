@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Template from "../types/template";
 import './template.css'
 import TemplateCard from "../component/template-card";
+import { parseNumberRanges, validateNumberRangeInput } from "../services/format-number";
 
 export default function TemplatePage() {
   const [templateData, setTemplateData] = useState<Template[]>([]);
@@ -12,6 +13,7 @@ export default function TemplatePage() {
   const [PlainTemplateImage, setPlainTemplateImage] = useState<string | null>(null);
   const [templateImage, setTemplateImage] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     async function getTemplateData(){
@@ -72,9 +74,11 @@ export default function TemplatePage() {
   }
 
   async function handleProcessTemplate(){
+    setLoading(true);
     try{
       const result = await window.electron.processTemplate();
       setTemplateImage(result);
+      setLoading(false);
       setStatus("labeling");
       console.log("uploadTemplate sent, received in main process:", result);
     }
@@ -86,15 +90,19 @@ export default function TemplatePage() {
 
   async function handleSaveTemplate() {
     if(!ValidateTemplateName()){
-      console.log("Invalid template name");
+      alert("Invalid template name");
       return false;
     }
     if(!validateSelectedField(selectedField)){
-      console.log("Invalid field format");
+      alert("Invalid field format");
+      return false;
+    }
+    if(!validateNumberRangeInput(selectedField).valid){
+      alert('ฟิลด์ที่เลือก'+ validateNumberRangeInput(selectedField).error)
       return false;
     }
     try{
-      const result = await window.electron.saveTemplate(templateName, [1,2,3]);
+      const result = await window.electron.saveTemplate(templateName, parseNumberRanges(selectedField));
       console.log("saveTemplate sent, received in main process:", result);
       alert("Template saved successfully");
       setStatus("viewing");
@@ -155,8 +163,10 @@ export default function TemplatePage() {
 
       <section className={`create ${status}`}>
         <h2 className="title">New Template</h2>
-        <label htmlFor="template-name">Template Name</label>
+        <label className="text-label" htmlFor="template-name">Template Name</label>
         <input type="text" id="template-name" onChange={(e)=>setTemplateName(e.target.value)} value={templateName}/>
+        <label className="text-label">Template File</label>
+        
         { status === 'selecting' && 
           <>
             <div className="upload-container">
@@ -166,16 +176,17 @@ export default function TemplatePage() {
                 type="file"
                 onChange={(e) => {handleUploadTemplate(e.target.files);}}
               />
-              <label htmlFor="file-input" className="upload-button">
-                <p>Select Files</p>
-              </label>
+              {!loading ? 
+                <>
+                  <label htmlFor="file-input" className="upload-button">
+                    <p>Select Files</p>
+                  </label>
+                </> :
+                <svg className="loading-icon" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3">
+                  <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-155.5t86-127Q252-817 325-848.5T480-880q17 0 28.5 11.5T520-840q0 17-11.5 28.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-17 11.5-28.5T840-520q17 0 28.5 11.5T880-480q0 82-31.5 155t-86 127.5q-54.5 54.5-127 86T480-80Z"/>
+                </svg>
+              }
             </div>
-            <input
-              id="file-input"
-              type="text"
-              onChange={(e) => {setSelectedField(e.target.value);}}
-              value={selectedField}
-            />
             <span className="button-group">
               <button className="cancel" onClick={() => handleCancelCreate()}>Cancel</button>
               <button className="next" onClick={() => handleProcessTemplate()}>Next</button>
@@ -188,7 +199,13 @@ export default function TemplatePage() {
             <div className="upload-container">
               {templateImage && <img className="background" src={`data:image/png;base64,${templateImage}`} />}
             </div>
-            <img src={`data:image/png;base64,${templateImage}`} />
+            <label htmlFor="accepted-field" className="text-label">Accepted Field</label>
+            <input
+              id="field-input"
+              type="text"
+              onChange={(e) => {setSelectedField(e.target.value);}}
+              value={selectedField}
+            />
             <span className="button-group">
               <button className="cancel" onClick={() => handleCancelCreate()}>Cancel</button>
               <button className="submit" onClick={() => handleSaveTemplate()}>Save</button>

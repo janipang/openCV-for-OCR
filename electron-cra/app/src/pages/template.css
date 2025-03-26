@@ -63,6 +63,18 @@ article.template .icon-button.create{
     background-color: var(--dark-blue);
     color: var(--white);
 }
+
+article.template .create .text-label {
+  font-size: var(--small-font-size);
+  font-weight: var(--regular-font-weight);
+}
+article.template .create input {
+  padding: var(--button-padding);
+  border: 1px solid var(--black);
+  font-weight: var(--small-font-weight);
+  font-size: var(--regular-font-size);
+}
+
 article.template .create .upload-container {
   position: relative;
   width: 100%;
@@ -89,7 +101,7 @@ article.template section.create .upload-button {
   border: 1px solid var(--black);
   background-color: var(--white);
   box-shadow: var(--down-medium-shadow);
-  padding: var(--button-padding);
+  padding: var(--small-wide-card-padding);
   font-weight: var(--medium-font-weight);
   font-size: var(--small-font-size);
   cursor: pointer;
@@ -110,7 +122,7 @@ article.template section.create .button-group {
 
 article.template section.create button {
   width: 100%;
-  padding: var(--button-padding);
+  padding: var(--small-wide-card-padding);
   cursor: pointer;
   font-weight: var(--medium-font-weight);
   font-size: var(--small-font-size);

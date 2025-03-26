@@ -39,6 +39,10 @@ p, h2{
   margin: 0px;
 }
 
+.loading-icon{
+  animation: rotate 3s infinite;
+}
+
 .field-card {
   padding: var(--field-card-padding);
   color: var(--black);
@@ -46,4 +50,8 @@ p, h2{
   justify-content: space-between;
   align-items: center;
   margin: 0rem;
+}
+
+@keyframes rotate {
+  100% {transform: rotate(360deg);}
 }
