@@ -49,17 +49,6 @@ export default function TemplatePage() {
       return true;
   }
 
-  function convertFieldToArray(field: string){
-    const field_array = field.split(",").map((field) => {
-      if(field.includes("-")){
-        const range = field.split("-").map((num) => parseInt(num));
-        return Array.from({length: range[1] - range[0] + 1}, (_, i) => i + range[0]);
-      }
-      return parseInt(field);
-    });
-    return field_array.flat();
-  }
-
   // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
   // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
 
@@ -83,8 +72,6 @@ export default function TemplatePage() {
   }
 
   async function handleProcessTemplate(){
-    alert(convertFieldToArray(selectedField));
-
     try{
       const result = await window.electron.processTemplate();
       setTemplateImage(result);
@@ -168,38 +155,44 @@ export default function TemplatePage() {
 
       <section className={`create ${status}`}>
         <h2 className="title">New Template</h2>
+        <label htmlFor="template-name">Template Name</label>
+        <input type="text" id="template-name" onChange={(e)=>setTemplateName(e.target.value)} value={templateName}/>
         { status === 'selecting' && 
           <>
-            <input type="text" id="template-name" onChange={(e)=>setTemplateName(e.target.value)} value={templateName}/>
-            <label htmlFor="template-name">Template Name</label>
-            <input
-              id="file-input"
-              type="file"
-              onChange={(e) => {handleUploadTemplate(e.target.files);}}
-            />
-            <label htmlFor="file-input" className="icon-button file-trigger">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.0268 6.14197L14.7455 2.86072C14.6846 2.79979 14.6122 2.75148 14.5325 2.71855C14.4528 2.68561 14.3675 2.66869 14.2812 2.66876H7.71875C7.37065 2.66876 7.03681 2.80704 6.79067 3.05318C6.54453 3.29933 6.40625 3.63317 6.40625 3.98126V5.29376H5.09375C4.74565 5.29376 4.41181 5.43204 4.16567 5.67818C3.91953 5.92433 3.78125 6.25817 3.78125 6.60626V18.4188C3.78125 18.7669 3.91953 19.1007 4.16567 19.3468C4.41181 19.593 4.74565 19.7313 5.09375 19.7313H14.2812C14.6293 19.7313 14.9632 19.593 15.2093 19.3468C15.4555 19.1007 15.5938 18.7669 15.5938 18.4188V17.1063H16.9062C17.2543 17.1063 17.5882 16.968 17.8343 16.7218C18.0805 16.4757 18.2188 16.1419 18.2188 15.7938V6.60626C18.2188 6.52006 18.2019 6.43468 18.169 6.35502C18.136 6.27535 18.0877 6.20296 18.0268 6.14197ZM14.2812 18.4188H5.09375V6.60626H11.3847L14.2812 9.50279V18.4188ZM16.9062 15.7938H15.5938V9.23126C15.5938 9.14506 15.5769 9.05968 15.544 8.98002C15.511 8.90035 15.4627 8.82796 15.4018 8.76696L12.1205 5.48572C12.0596 5.42479 11.9872 5.37648 11.9075 5.34355C11.8278 5.31061 11.7425 5.29369 11.6562 5.29376H7.71875V3.98126H14.0097L16.9062 6.87779V15.7938ZM12.3125 13.1688C12.3125 13.3428 12.2434 13.5097 12.1203 13.6328C11.9972 13.7559 11.8303 13.825 11.6562 13.825H7.71875C7.5447 13.825 7.37778 13.7559 7.25471 13.6328C7.13164 13.5097 7.0625 13.3428 7.0625 13.1688C7.0625 12.9947 7.13164 12.8278 7.25471 12.7047C7.37778 12.5817 7.5447 12.5125 7.71875 12.5125H11.6562C11.8303 12.5125 11.9972 12.5817 12.1203 12.7047C12.2434 12.8278 12.3125 12.9947 12.3125 13.1688ZM12.3125 15.7938C12.3125 15.9678 12.2434 16.1347 12.1203 16.2578C11.9972 16.3809 11.8303 16.45 11.6562 16.45H7.71875C7.5447 16.45 7.37778 16.3809 7.25471 16.2578C7.13164 16.1347 7.0625 15.9678 7.0625 15.7938C7.0625 15.6197 7.13164 15.4528 7.25471 15.3297C7.37778 15.2067 7.5447 15.1375 7.71875 15.1375H11.6562C11.8303 15.1375 11.9972 15.2067 12.1203 15.3297C12.2434 15.4528 12.3125 15.6197 12.3125 15.7938Z" fill="white"/>
-              </svg>
-              <p>Select Files</p>
-            </label>
-            <img src={`data:image/png;base64,${PlainTemplateImage}`} />
+            <div className="upload-container">
+              {PlainTemplateImage && <img className="background" src={`data:image/png;base64,${PlainTemplateImage}`} />}
+              <input
+                id="file-input"
+                type="file"
+                onChange={(e) => {handleUploadTemplate(e.target.files);}}
+              />
+              <label htmlFor="file-input" className="upload-button">
+                <p>Select Files</p>
+              </label>
+            </div>
             <input
               id="file-input"
               type="text"
               onChange={(e) => {setSelectedField(e.target.value);}}
               value={selectedField}
             />
-            <button className="create-button" onClick={() => handleCancelCreate()}>Cancel</button>
-            <button className="create-button" onClick={() => handleProcessTemplate()}>Next</button>
+            <span className="button-group">
+              <button className="cancel" onClick={() => handleCancelCreate()}>Cancel</button>
+              <button className="next" onClick={() => handleProcessTemplate()}>Next</button>
+            </span>
           </>
         }
 
         { status === 'labeling' && 
           <>
+            <div className="upload-container">
+              {templateImage && <img className="background" src={`data:image/png;base64,${templateImage}`} />}
+            </div>
             <img src={`data:image/png;base64,${templateImage}`} />
-            <button className="create-button">Cancel</button>
-            <button className="create-button" onClick={() => handleSaveTemplate()}>Save</button>
+            <span className="button-group">
+              <button className="cancel" onClick={() => handleCancelCreate()}>Cancel</button>
+              <button className="submit" onClick={() => handleSaveTemplate()}>Save</button>
+            </span>
           </>
         }
       </section>
