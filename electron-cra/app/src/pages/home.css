@@ -134,10 +134,6 @@ article.scanner input[type="text"] {
   color: var(--black);
 }
 
-article.scanner p{
-  margin: 0px;
-}
-
 button.cancel{
   color:var(--red);
   border: 2px solid var(--red);
@@ -181,8 +177,4 @@ button.success{
   border: 2px solid var(--green);
   background-color: var(--green);
   cursor: not-allowed;
-}
-
-button:hover, .icon-button:hover{
-  cursor: pointer;
 }

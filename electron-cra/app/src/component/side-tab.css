@@ -1,27 +1,31 @@
+aside {
+  background-color: var(--navy);
+  padding: 1rem 0rem;
+}
 
-  
-  aside {
-    background-color: var(--navy);
-    padding: 1rem 0rem;
-  }
-  
-  aside a {
-    padding: 0rem 2rem;
-    font-weight: 600;
-    background-color: inherit;
-    color: #FFFFFF;
-    text-decoration: none;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  aside a:hover {
-    background-color: var(--light-navy);
-    cursor: pointer;
-  }
-  
-  aside a.current {
-    background-color: var(--dark-navy);
-  }
+aside a {
+  padding: 0rem 2rem;
+  font-weight: 600;
+  background-color: inherit;
+  color: #ffffff;
+  text-decoration: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+aside a:hover {
+  background-color: var(--light-navy);
+  cursor: pointer;
+}
+
+aside a.current {
+  background-color: var(--dark-navy);
+}
+
+aside p {
+  margin: 2rem;
+  font-size: var(--medium-font-size);
+  font-weight: var(--bold-font-weight);
+}

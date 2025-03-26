@@ -1,7 +1,5 @@
 .template-card{
-  width: 100%;
-  height: 100%;
-  max-width: 450;
+  width: 380px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

@@ -31,6 +31,14 @@ main {
   border: none;
 }
 
+button, .icon-button {
+  cursor: pointer;
+}
+
+p{
+  margin: 0px;
+}
+
 .field-card {
   padding: var(--field-card-padding);
   color: var(--black);
