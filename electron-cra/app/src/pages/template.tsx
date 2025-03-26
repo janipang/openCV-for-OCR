@@ -6,6 +6,8 @@ import TemplateCard from "../component/template-card";
 export default function TemplatePage() {
   const [templateData, setTemplateData] = useState<Template[]>([]);
   const [status, setStatus] = useState<'viewing' | 'selecting' | 'labeling'>("viewing");
+
+  // for create new template
   const [templateName, setTemplateName] = useState<string>("");
   const [PlainTemplateImage, setPlainTemplateImage] = useState<string | null>(null);
   const [templateImage, setTemplateImage] = useState<string | null>(null);
@@ -32,6 +34,8 @@ export default function TemplatePage() {
     return true;
   }
 
+  // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
+  // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
   function validateSelectedField(field: string){
     const regex = /^(\d+(-\d+)?,)*(?:\d+(-\d+)?)$/;
       if(field === ""){
@@ -56,7 +60,10 @@ export default function TemplatePage() {
     return field_array.flat();
   }
 
-  async function handleSelectTemplateFile(files: FileList | null){
+  // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
+  // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
+
+  async function handleUploadTemplate(files: FileList | null){
     if (files && files.length > 0) {
       const selectedFile = files[0]; // เก็บไฟล์แรกจาก FileList
       console.log("Selected file:", selectedFile);
@@ -76,14 +83,6 @@ export default function TemplatePage() {
   }
 
   async function handleProcessTemplate(){
-    if(!ValidateTemplateName()){
-      console.log("Invalid template name");
-      return false;
-    }
-    if(!validateSelectedField(selectedField)){
-      console.log("Invalid field format");
-      return false;
-    }
     alert(convertFieldToArray(selectedField));
 
     try{
@@ -99,6 +98,14 @@ export default function TemplatePage() {
   }
 
   async function handleSaveTemplate() {
+    if(!ValidateTemplateName()){
+      console.log("Invalid template name");
+      return false;
+    }
+    if(!validateSelectedField(selectedField)){
+      console.log("Invalid field format");
+      return false;
+    }
     try{
       const result = await window.electron.saveTemplate(templateName, [1,2,3]);
       console.log("saveTemplate sent, received in main process:", result);
@@ -108,6 +115,15 @@ export default function TemplatePage() {
     catch(error){
       console.error("Error in sending message:", error);
     }
+  }
+
+  function handleCancelCreate(){
+    alert("The Change will not be Saved");
+    setTemplateName("");
+    setPlainTemplateImage(null);
+    setTemplateImage(null);
+    setSelectedField("");
+    setStatus("viewing");
   }
 
   function setTemplateItemName(id:string, name: string){
@@ -159,7 +175,7 @@ export default function TemplatePage() {
             <input
               id="file-input"
               type="file"
-              onChange={(e) => {handleSelectTemplateFile(e.target.files);}}
+              onChange={(e) => {handleUploadTemplate(e.target.files);}}
             />
             <label htmlFor="file-input" className="icon-button file-trigger">
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -174,7 +190,7 @@ export default function TemplatePage() {
               onChange={(e) => {setSelectedField(e.target.value);}}
               value={selectedField}
             />
-            <button className="create-button">Cancel</button>
+            <button className="create-button" onClick={() => handleCancelCreate()}>Cancel</button>
             <button className="create-button" onClick={() => handleProcessTemplate()}>Next</button>
           </>
         }

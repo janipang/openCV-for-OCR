@@ -111,7 +111,7 @@ function createFileStructure() {
     "process.py",
     "services.py",
     "template.py",
-    "communication.py",
+    "png_converter.py",
     "requirements.txt",
   ];
   pythonFileNames.forEach((fileName) => {
@@ -196,6 +196,23 @@ async function runPythonTemplate(input_path, output_path) {
     ], folders.base);
 
     console.log("✅ Scanning Template Field Completed!");
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+  }
+}
+
+async function runPngConverter(input_path, output_dir, page) {
+  try {
+    console.log("Running png_converter.py...");
+    await runCommand("python", [
+      "-u",
+      path.join(folders.base, "png_converter.py"),
+      input_path,
+      output_dir,
+      page
+    ], folders.base);
+
+    console.log("✅ Convert PDF to PNG Completed!");
   } catch (error) {
     console.error("❌ Error:", error.message);
   }
@@ -364,6 +381,8 @@ app.whenReady().then(() => {
   ipcMain.handle("upload-template", async (_event, file) => {
     const plainTemplateFolder = folders.template.plain;
     const plainTemplateFilePath = path.join(plainTemplateFolder, file.name);
+    const plainPngTemplateFolder = folders.template.plainpng;
+    const plainPngTemplateFilePath = path.join(plainPngTemplateFolder, file.name.split('.')[0] + '.png');
 
     // delete existing plain template
     if (fs.existsSync(plainTemplateFolder)) {
@@ -377,30 +396,23 @@ app.whenReady().then(() => {
     // write plain template file to temp folder
     fs.writeFile(plainTemplateFilePath, Buffer.from(file.data), (err) => {
       if (err) {
-        console.error("File saving error:", err);
+        console.error("Saving Plain File error: ", err);
       } else {
         console.log("/ Plain Template File saved:", file.name, '\n');
       }
     });
     
     // convert plain template to png for preview
-    // pdfPoppler.convert(plainTemplateFilePath, {format: 'png', out_dir: plainPngTemplateFolder, out_prefix: file.name.split[0], page: 1})
-    // .then(() => {
-    //   console.log('Conversion complete');
-    // })
-    // .catch((error) => {
-    //   console.error('Error:', error);
-    // });
+    await runPngConverter(plainTemplateFilePath, plainPngTemplateFolder, 1);
     
-    // // return plain template image to user
-    // const imageData = fs.readFileSync(plainPngTemplateFilePath).toString("base64");
-    // if (imageData) {
-    //   return imageData;
-    // }
-    // else{
-    //   return null;
-    // }
-    return null;
+    // return plain template image to user
+    const imageData = fs.readFileSync(plainPngTemplateFilePath).toString("base64");
+    if (imageData) {
+      return imageData;
+    }
+    else{
+      return null;
+    }
   });
 
   ipcMain.handle("process-template", async (_event) => {
