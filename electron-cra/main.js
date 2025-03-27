@@ -36,7 +36,7 @@ const perm_folders = {
   base: PermDir,
   backup: {
     base: path.join(PermDir, "backup"),
-    list: path.join(PermDir, "backup", "list",),
+    list: path.join(PermDir, "backup", "list"),
   },
   template: {
     base: path.join(PermDir, "template"),
@@ -232,10 +232,77 @@ async function runPngConverter(input_path, output_dir, page) {
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
 
-function getBackUps() {
+function getBackUpData() {
+  const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
+  const stored_data = JSON.parse(fs.readFileSync(backUpsFilePath, 'utf8'));
+
+  // send the full dir path
+  stored_data.forEach((item) => {
+    if (item.location) {
+      item.location = path.join(perm_folders.backup.base, item.location);
+    }
+  });
+
+  return stored_data;
+}
+
+function getRawBackUpData() {
   const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
   const stored_data = JSON.parse(fs.readFileSync(backUpsFilePath, 'utf8'));
   return stored_data;
+}
+
+function postBackUpData(name, dirName, date, inputDir, outputPath, templateData, templateImagePath) {
+  const backUps = getRawBackUpData();
+  const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
+  console.log("Saving BackUp Data to ", perm_folders.backup.base, "...")
+  
+  function generateNewId() {
+    if (backUps.length === 0) return 1; // ถ้าไม่มีข้อมูลให้เริ่มที่ 1
+
+    const maxId = Math.max(...backUps.map(item => item.id)); // หาค่า id ที่สูงสุด
+    return maxId + 1;
+  }
+
+  const id = generateNewId();
+  const b_dirName = `${id}_${dirName}`;
+  const b_listDir = path.join(perm_folders.backup.list, b_dirName);
+  const b_templateDataPath = path.join(b_listDir, 'template.json');
+  const b_templateImagePath = path.join(b_listDir, 'template.png');
+  const b_inputDirPath = path.join(b_listDir, 'input');
+  const b_resultPath = path.join(b_listDir, `${dirName}.xlsx`);
+  // create new storage space
+  if (fs.existsSync(b_listDir)) {
+    fs.rmSync(b_listDir, { recursive: true, force: true });
+  };
+  fs.mkdirSync(b_listDir, { recursive: true });
+  fs.mkdirSync(b_inputDirPath);
+  // write template data & template file
+  fs.writeFileSync(b_templateDataPath, JSON.stringify(templateData, null, 2));
+  fs.copyFileSync(templateImagePath, b_templateImagePath);
+  // copy output file
+  fs.copyFileSync(outputPath, b_resultPath);
+  // copy input files
+  if (fs.existsSync(inputDir)) {
+    fs.readdirSync(inputDir).forEach(file => {
+      const inputFilePath = path.join(inputDir, file);
+      const inputFileName = path.basename(inputFilePath);
+      const b_filePath = path.join(b_inputDirPath, inputFileName);
+      fs.copyFileSync(inputFilePath, b_filePath);
+    });
+  }
+
+  console.log("Updating backup/data.json...")
+  // update backup data >> data.json
+  const newBackUp = {
+    id: id,
+    name: name,
+    date: date,
+    location: b_dirName}
+    backUps.push(newBackUp);
+  fs.writeFileSync(backUpsFilePath, JSON.stringify(backUps, null, 2));
+  console.log("/ Saved BackUp Data Success")
+  return true;
 }
 
 function getRawTemplateData() {
@@ -381,16 +448,27 @@ app.whenReady().then(() => {
 
   // handle run process on files
   ipcMain.handle("process-files", async (_event, config) => {
+    function sanitizeFileName(str) {
+      return str
+        .replace(/ /g, "_")  // Replace spaces with underscores
+        .replace(/\//g, "-") // Replace slashes with hyphens
+        .replace(/[\\:*?"<>|]/g, ""); // Remove invalid filename characters
+    }
     console.log("running with config: ", config);
-    const { output_dir, output_file_name, selected_field } = config;
-    runPythonProcess(folders.raw , output_dir, output_file_name, selected_field);
+    const start_time = Date();
+    const { output_dir, name, template } = config;
+    const output_file_name = sanitizeFileName(name);
+    const templateImagePath = path.join(perm_folders.template.image, template.id + '.png');
+    const outputFilePath = path.join(output_dir, output_file_name + '.xlsx')
+    await runPythonProcess(folders.raw , output_dir, output_file_name, template.accepted_field);
+    postBackUpData(name, output_file_name, start_time, folders.raw, outputFilePath, template, templateImagePath);
     return true;
   });
 
   // handle get backups
   ipcMain.handle("get-backups", async () => {
     console.log("/ Fetched BackUps Data Success\n");
-    return getBackUps();
+    return getBackUpData();
   })
 
   // handle get templates

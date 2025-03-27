@@ -114,20 +114,18 @@ export default function HomePage() {
     } catch (error) {
       console.error("Error in sending message:", error);
     }
-
+    // set status of all file as pending
+    setInputFiles((prevFiles) => prevFiles.map(file => ({ ...file, status: "pending" })));
     try {
-        const result = await window.electron.processFiles(
-          {
-            output_dir: outputDir,
-            output_file_name: outputFileName,
-            selected_field: template!.accepted_field,
-          });
-
-        // set status of all file as pending
-        setInputFiles((prevFiles) => prevFiles.map(file => ({ ...file, status: "pending" })));
-        console.log("Message sent, received in main process:", result);
+      const result = await window.electron.processFiles(
+      {
+        output_dir: outputDir,
+        name: outputFileName,
+        template: template!, 
+      });
+      console.log("Message sent, received in main process:", result);
     } catch (error) {
-        console.error("Error in sending message:", error);
+      console.error("Error in sending message:", error);
     }
   }
 

@@ -1,4 +1,5 @@
 import BackUp from "./types/backup";
+import Template from "./types/template";
 
 export interface ElectronAPI {
     copyFiles: (files: ElectronFile[]) => Promise<boolean>;
@@ -16,8 +17,8 @@ export interface ElectronAPI {
   }
   interface ProcessConfig {
     output_dir: string;
-    output_file_name: string;
-    selected_field: number[];
+    name: string;
+    template: Template;
   }
 
   declare global {

@@ -21,7 +21,7 @@ export default function RecentPage() {
   },[])
   return (
     <article className="recent">
-      <section className="back-up">
+      <section className="backup">
         <h2 className="title">Files Back Up</h2>
         <span className="list">
           <div className="list-content">
