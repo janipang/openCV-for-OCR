@@ -30,6 +30,7 @@ export default function RecentPage() {
                 <span className="wide-card" key={item.id}>
                   <span className="info">
                     <p className="name">{item.name}</p>
+                    <p className="separator">•</p>
                     <p className="time">{formatDateTime(item.date)}</p>
                   </span>
                   <button className="icon-button open" onClick={()=>{}}>

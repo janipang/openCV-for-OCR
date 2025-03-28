@@ -11,7 +11,7 @@ article.recent section.backup {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: var(--main-article-padding);
+  padding: var(--main-article-padding-y) 0rem 0rem 0rem;
   width: 100%;
   height: 100%;
   gap: var(--main-article-gap);
@@ -23,7 +23,7 @@ article.recent section.backup {
 article.recent h2.title{
   font-size: var(--medium-font-size);
   font-weight: var(--bold-font-weight);
-  padding: none;
+  padding: var(--button-padding-y) var(--main-article-padding-x);
 }
 
 article.recent section.backup .list{
@@ -36,6 +36,7 @@ article.recent section.backup .list{
 }
 
 article.recent section.backup .list-content{
+  padding: 0rem var(--main-article-padding-x) var(--main-article-padding-x) var(--main-article-padding-x);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -49,7 +50,7 @@ article.recent section.backup .list-item{
   width: 100%;
   display: flex;
   justify-content: space-between;
-  gap: var(--wide-card-gap);
+  gap: calc(var(--wide-card-gap));
 }
 
 article.recent .wide-card {
@@ -71,7 +72,7 @@ article.recent .info .name {
   font-weight: var(--regular-font-weight);
 }
 
-article.recent .info .time {
+article.recent .info .time,.separator {
   font-size: var(--medium-font-size);
   font-weight: var(--regular-font-weight);
   color: var(--dark-gray);

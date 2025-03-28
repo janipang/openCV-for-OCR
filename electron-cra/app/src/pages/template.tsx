@@ -144,7 +144,7 @@ export default function TemplatePage() {
   return (
     <article className={`template ${status}`}>
       <section className="list">
-        <span className="field-card top-bar">
+        <span className="top-bar">
           <h2 className="title">Templates</h2>
           <button className="icon-button create" onClick={() => setStatus("selecting")}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">

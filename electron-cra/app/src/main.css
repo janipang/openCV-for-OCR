@@ -18,11 +18,15 @@
  
 
   --main-article-padding: 2rem 3rem;
+  --main-article-padding-y: 2rem;
+  --main-article-padding-x: 3rem;
   --side-article-padding: 2rem 1.5rem;
   --button-padding: 1rem 1.25rem;
   --button-padding-y: 1rem;
   --button-padding-x: 1.25rem;
   --wide-card-padding: 1rem 1.25rem;
+  --wide-card-padding-y: 1rem;
+  --wide-card-padding-x: 1.25rem;
   --field-card-padding: 0.5rem 0rem;
   --small-wide-card-padding: 0.5rem 0.5rem;
   --vertical-card-padding: 1.5rem;
@@ -31,6 +35,7 @@
   --title-gap: 2.25rem;
   --button-gap: 0.625rem;
   --template-tab-gap: 1.25rem;
+  --wide-card-gap: 1.25rem;
   --small-wide-card-gap: 0.75rem;
   --file-list-gap: 0.75rem;
   --vertical-card-gap: 0.875rem;
