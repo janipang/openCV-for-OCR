@@ -45,13 +45,19 @@ h2 {
   animation: rotate 3s infinite;
 }
 
-.field-card {
+.field-card, .wide-card {
   padding: var(--field-card-padding);
   color: var(--black);
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 0rem;
+}
+
+button.active-icon{
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 @keyframes rotate {

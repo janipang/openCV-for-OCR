@@ -39,6 +39,7 @@ export default function TemplateCard({
           />
           {nameStatus == "editing" ? (
             <button
+              className="active-icon"
               onClick={async () => {
                 if (validateTemplateName(templateData.name)) {
                   try {
@@ -55,8 +56,7 @@ export default function TemplateCard({
                     console.error("Error in sending putTemplateName:", error);
                   }
                 } else {
-                  alert(templateData.name);
-                  // alert('กรุณาใช้ชื่อที่ไม่ประกอบด้วย <>, ^, \\, " ');
+                  alert('กรุณาใช้ชื่อที่ไม่ประกอบด้วย <>, ^, \\, " ');
                 }
               }}
             >
@@ -66,6 +66,7 @@ export default function TemplateCard({
             </button>
           ) : (
             <button
+              className="active-icon"
               onClick={() => {
                 setNameStatus('editing');
               }}
@@ -100,6 +101,7 @@ export default function TemplateCard({
           />
           {fieldStatus == "editing" ? (
             <button
+              className="active-icon"
               onClick={async () => {
                 const validate_result = validateNumberRangeInput(fieldDataDisplay);
                 if (validate_result.valid) {
@@ -125,6 +127,7 @@ export default function TemplateCard({
             </button>
           ) : (
             <button
+              className="active-icon"
               onClick={() => {
                 setFieldStatus('editing');
               }}

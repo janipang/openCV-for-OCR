@@ -30,8 +30,54 @@ article.recent section.backup .list{
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: var(--main-article-padding);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+article.recent section.backup .list-content{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   width: 100%;
   gap: var(--main-article-gap);
   box-sizing: border-box;
+  overflow-y: scroll;
 }
+
+article.recent section.backup .list-item{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--wide-card-gap);
+}
+
+article.recent .wide-card {
+  background-color: var(--white);
+  box-shadow: var(--down-medium-shadow);
+  padding: var(--wide-card-padding);
+  border-radius: var(--wide-card-rounding);
+  display: flex;
+  flex-grow: 1;
+}
+
+article.recent .info {
+  display: flex;
+  gap: 8px;
+}
+
+article.recent .info .name {
+  font-size: var(--medium-font-size);
+  font-weight: var(--regular-font-weight);
+}
+
+article.recent .info .time {
+  font-size: var(--medium-font-size);
+  font-weight: var(--regular-font-weight);
+  color: var(--dark-gray);
+}
+
+article.recent .icon-button.open {
+  background-color: var(--dark-blue);
+}
+
