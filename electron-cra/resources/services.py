@@ -1,6 +1,5 @@
 import os
 import json
-from serialize import *
 from document import *
 
 def process_file_as_sample(target, output_dir="/content/", object_store_path=""):
@@ -9,20 +8,15 @@ def process_file_as_sample(target, output_dir="/content/", object_store_path="")
 
         d = Document(target)
         d.process_as_sample(output_dir)
-        document_to_json(d, object_store_path)
         print(d)
         return d
 
     except Exception as e:
         print(e)
         
-
-def draw_only_selected_field_by_json_object(document_object_path, field, json_save_path, image_save_path):
-    # แปลงกลับเป็นออบเจ็กต์ Document
-    document = document_from_json(document_object_path)
-    draw_only_selected_field(document, field, json_save_path, image_save_path)
-
-def draw_only_selected_field(document, field, json_save_path, image_save_path):
+# I CHANGE THIS : params[1] + Document()
+def draw_only_selected_field(plain_png_path, field, json_save_path, image_save_path):
+    document = Document(plain_png_path)
     json_dict = {}
     json_dict["Selected_Keys"] = []
     json_dict["Selected_Indexs"] = []
@@ -58,6 +52,7 @@ def draw_only_selected_field(document, field, json_save_path, image_save_path):
     cv2.imwrite(image_save_path, display_img)
     with open(json_save_path, 'w', encoding='utf-8') as file:
         json.dump(json_dict, file, indent=4)
+        
         
 def process_file(target_json, input_dir = "/content/INV_Dataset/", output_dir="/content/invoice_data.xlsx"):
 

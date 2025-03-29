@@ -12,6 +12,7 @@ export interface ElectronAPI {
     getTemplates: () => Promise<Template[]>;
     uploadTemplate: (file: ElectronFile) => Promise<string | null>;
     processTemplate: () => Promise<string | null>;
+    viewFinalTemplate: (name: string, field: number[]) => Promise<string | null>;
     saveTemplate: (name: string, acceptedField: number[]) => Promise<boolean>;
     putTemplateName: (id: string, name: string) => Promise<boolean>;
     putTemplateField: (id:  string, field: number[]) => Promise<boolean>;

@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld("electron", {
     getTemplates: () => ipcRenderer.invoke('get-templates'),
     uploadTemplate: (file) => ipcRenderer.invoke("upload-template", file),
     processTemplate: () => ipcRenderer.invoke("process-template"),
+    viewFinalTemplate: (name, field) => ipcRenderer.invoke('view-final-template', name, field),
     saveTemplate: (name, acceptedField) => ipcRenderer.invoke('save-template', name, acceptedField),
     putTemplateName: (id, name) => ipcRenderer.invoke('put-template-name', id, name),
     putTemplateField: (id, field) => ipcRenderer.invoke('put-template-field', id, field),

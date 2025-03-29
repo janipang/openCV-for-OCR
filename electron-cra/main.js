@@ -29,6 +29,7 @@ const folders = {
     plainpng: path.join(baseTempDir, "src", "template", "plainpng"),
     bounded: path.join(baseTempDir, "src", "template", "bounded"),
     object: path.join(baseTempDir, "src", "template", "object"),
+    json: path.join(baseTempDir, "src", "template", "json"),
     final: path.join(baseTempDir, "src", "template", "final"),
   },
 };
@@ -43,6 +44,7 @@ const perm_folders = {
   template: {
     base: path.join(PermDir, "template"),
     image: path.join(PermDir, "template", "image"),
+    json: path.join(PermDir, "template", "json"),
   },
   process: path.join(PermDir, "process"),
 };
@@ -124,7 +126,6 @@ function createFileStructure() {
     "document.py",
     "process.py",
     "services.py",
-    "serialize.py",
     "template.py",
     "template_show.py",
     "png_converter.py",
@@ -380,7 +381,7 @@ function getRawTemplateDataById(id) {
   return null
 }
 
-function postTemplateData(name, image, field){
+function postTemplateData(name, image, jsonData){
   const templates = getRawTemplateData();
   const templatesFilePath = path.join(perm_folders.template.base, "data.json");
   
@@ -392,14 +393,20 @@ function postTemplateData(name, image, field){
   }
 
   const id = generateNewId();
-  const imageName = id.toString()+ '.png';
+  const imageName = id.toString() + '.png';
   const imagePath = path.join(perm_folders.template.image, imageName);
   fs.writeFileSync(imagePath, image);
+
+  const jsonName = id.toString() + '.json';
+  const jsonPath = path.join(perm_folders.template.json, jsonName);
+  fs.writeFileSync(jsonPath, jsonData);
+
+
   const newTemplate = {
     id: id,
     name: name,
     image: imageName,
-    accepted_field: field}
+    json_path: jsonName}
   templates.push(newTemplate);
   fs.writeFileSync(templatesFilePath, JSON.stringify(templates, null, 2));
   return true;
@@ -494,11 +501,11 @@ app.whenReady().then(() => {
   ipcMain.handle("process-files", async (_event, config) => {
     console.log("running with config: ", config);
     const start_time = Date();
-    const { output_dir, name, template } = config;
+    const { output_dir, name, template, table_include } = config;
     const output_file_name = sanitizeFileName(name);
     const templateImagePath = path.join(perm_folders.template.image, template.id + '.png');
     const outputFilePath = path.join(output_dir, output_file_name + '.xlsx')
-    await runPythonProcess(folders.raw , output_dir, output_file_name, template.accepted_field);
+    await runPythonProcess(folders.raw , output_dir, output_file_name, template.json_path, table_include);
     postBackUpData(name, output_file_name, start_time, folders.raw, outputFilePath, template, templateImagePath);
     return true;
   });
@@ -573,13 +580,11 @@ app.whenReady().then(() => {
     const fileName = fs.readdirSync(plainTemplateFolder)[0];
     console.log("fileName: ", fileName);
     const plainTemplateFilePath = path.join(plainTemplateFolder, fileName);
-    const boundedTemplateFilePath = path.join(boundedTemplateFolder, fileName.split('.')[0] + '.png');
     // delete existing bounded template
     console.log("Deleting Old template...");
     if (fs.existsSync(boundedTemplateFolder)) {
       fs.readdirSync(boundedTemplateFolder).forEach(file => {
         const filePath = path.join(boundedTemplateFolder, file);
-        // ตรวจสอบว่าเป็นไฟล์หรือไม่
         if (fs.statSync(filePath).isFile()) {
           fs.rmSync(filePath);
         }
@@ -588,7 +593,7 @@ app.whenReady().then(() => {
     
     // run python and save bounding-box image to bounded template folder
     await runPythonTemplate(plainTemplateFilePath, boundedTemplateFolder, objectStoredPath);
-    console.log("/ Boxed Template Saved to " , boundedTemplateFilePath, "Success.\n");
+    console.log("/ Boxed Template Saved to " , boundedTemplateFolder, "Success.\n");
 
     let targetFile = fs.readdirSync(boundedTemplateFolder)[0];
     let targetFilePath = path.join(boundedTemplateFolder, targetFile);
@@ -606,21 +611,41 @@ app.whenReady().then(() => {
 
 // this not finish bro!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ipcMain.handle("view-final-template", async (_event, name, field) => {
-    const documentObjectPath = path.join(folders.template.object,'document.pkl');
+    console.log("view-final-template invoked handled ...", name, field);
+    const plainPngFolder = path.join(folders.template.plainpng);
     const jsonSavePath = path.join(folders.template.json, sanitizeFileName(name) +'.json');
     const imageSavePath = path.join(folders.template.final, sanitizeFileName(name) +'.png');
-    runPythonTemplateShow(documentObjectPath, field, jsonSavePath, imageSavePath);
-    console.log("/ Show Template Image from ", folders.template, "Success.\n");
-    return true;
+    let plainPngFile = fs.readdirSync(boundedTemplateFolder)[0];
+    let plainPngPath = path.join(plainPngFolder, plainPngFile);
+
+    await runPythonTemplateShow(plainPngPath, field, jsonSavePath, imageSavePath);
+    console.log("/ Show Template Image from ", imageSavePath, "Success.\n");
+
+    let finalFolder = folders.template.final;
+    let finalFile = fs.readdirSync(finalFolder)[0];
+    let finalFilePath = path.join(finalFolder, finalFile);
+    // return bounded selected field only template image to user
+    const imageData = fs.readFileSync(finalFilePath).toString("base64");
+    if (imageData) {
+      return imageData;
+    }
+    else{
+      return null;
+    }
   });
 
-  ipcMain.handle("save-template", async (_event, name, field) => {
+  ipcMain.handle("save-template", async (_event, name) => {
     const boundedTemplateFolder = folders.template.bounded;
     const fileName = fs.readdirSync(boundedTemplateFolder)[0];
     const boundedTemplateFilePath = path.join(boundedTemplateFolder, fileName);
+    
+    let finalFolder = folders.template.final;
+    let finalFile = fs.readdirSync(finalFolder)[0];
+    let finalFilePath = path.join(finalFolder, finalFile);
 
     const image = fs.readFileSync(boundedTemplateFilePath);
-    postTemplateData(name, image, field);
+    const jsonData = fs.readFileSync(finalFilePath);
+    postTemplateData(name, image, jsonData);
     console.log("/ Saved Template to ", perm_folders.template, "Success.\n");
     return true;
   });

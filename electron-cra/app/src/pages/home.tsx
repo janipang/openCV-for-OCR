@@ -121,7 +121,7 @@ export default function HomePage() {
       {
         output_dir: outputDir,
         name: outputFileName,
-        template: template!, 
+        template: template!,
       });
       console.log("Message sent, received in main process:", result);
     } catch (error) {

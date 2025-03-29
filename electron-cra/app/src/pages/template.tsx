@@ -6,11 +6,12 @@ import { parseNumberRanges, validateNumberRangeInput } from "../services/format-
 
 export default function TemplatePage() {
   const [templateData, setTemplateData] = useState<Template[]>([]);
-  const [status, setStatus] = useState<'viewing' | 'selecting' | 'labeling'>("viewing");
+  const [status, setStatus] = useState<'viewing' | 'selecting' | 'labeling' | 'confirming'>('viewing');
 
   // for create new template
   const [templateName, setTemplateName] = useState<string>("");
-  const [PlainTemplateImage, setPlainTemplateImage] = useState<string | null>(null);
+  const [plainTemplateImage, setPlainTemplateImage] = useState<string | null>(null);
+  const [boxedTemplateImage, setBoxedTemplateImage] = useState<string | null>(null);
   const [templateImage, setTemplateImage] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,18 +39,6 @@ export default function TemplatePage() {
 
   // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
   // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
-  function validateSelectedField(field: string){
-    const regex = /^(\d+(-\d+)?,)*(?:\d+(-\d+)?)$/;
-      if(field === ""){
-          alert("Please select a field to label");
-          return false;
-      }
-      if(!regex.test(field)){
-          alert("Invalid field format");
-          return false;
-      }
-      return true;
-  }
 
   // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
   // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
@@ -77,10 +66,28 @@ export default function TemplatePage() {
     setLoading(true);
     try{
       const result = await window.electron.processTemplate();
-      setTemplateImage(result);
+      setBoxedTemplateImage(result);
       setLoading(false);
       setStatus("labeling");
-      console.log("uploadTemplate sent, received in main process:", result);
+      console.log("processTemplate sent, received in main process:", result);
+    }
+    catch(error){
+      console.error("Error in sending message:", error);
+    }
+    return true
+  }
+
+  async function handleLabelTemplate() {
+    if(!validateNumberRangeInput(selectedField).valid){
+      alert('ฟิลด์ที่เลือก'+ validateNumberRangeInput(selectedField).error)
+      return false;
+    }
+    setLoading(true);
+    try{
+      const result = await window.electron.viewFinalTemplate(templateName, parseNumberRanges(selectedField));
+      setTemplateImage(result);
+      setStatus('confirming');
+      console.log("viewFinalTemplate sent, received in main process:", result);
     }
     catch(error){
       console.error("Error in sending message:", error);
@@ -91,10 +98,6 @@ export default function TemplatePage() {
   async function handleSaveTemplate() {
     if(!ValidateTemplateName()){
       alert("Invalid template name");
-      return false;
-    }
-    if(!validateSelectedField(selectedField)){
-      alert("Invalid field format");
       return false;
     }
     if(!validateNumberRangeInput(selectedField).valid){
@@ -131,16 +134,6 @@ export default function TemplatePage() {
     setTemplateData(updatedTemplates);
   }
 
-  function setTemplateItemField(id:string, field: number[]){
-    const updatedTemplates = templateData.map(item => {
-      if (item.id === id) {
-        return { ...item, accepted_field: field };
-      }
-      return item;
-    });
-    setTemplateData(updatedTemplates);
-  }
-
   return (
     <article className={`template ${status}`}>
       <section className="list">
@@ -156,7 +149,7 @@ export default function TemplatePage() {
 
         <div className="template-list">
           {templateData.map((template) => (
-            <TemplateCard templateData={template} setTemplateItemName={setTemplateItemName} setTemplateItemField={setTemplateItemField}/>
+            <TemplateCard templateData={template} setTemplateItemName={setTemplateItemName}/>
           ))}
         </div>
       </section>
@@ -170,7 +163,7 @@ export default function TemplatePage() {
         { status === 'selecting' && 
           <>
             <div className="upload-container">
-              {PlainTemplateImage && <img className="background" src={`data:image/png;base64,${PlainTemplateImage}`} />}
+              {plainTemplateImage && <img className="background" src={`data:image/png;base64,${plainTemplateImage}`} />}
               <input
                 id="file-input"
                 type="file"
@@ -197,7 +190,39 @@ export default function TemplatePage() {
         { status === 'labeling' && 
           <>
             <div className="upload-container">
+              {boxedTemplateImage && <img className="background" src={`data:image/png;base64,${boxedTemplateImage}`} />}
+              
+              {loading &&
+                <svg className="loading-icon" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3">
+                  <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-155.5t86-127Q252-817 325-848.5T480-880q17 0 28.5 11.5T520-840q0 17-11.5 28.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-17 11.5-28.5T840-520q17 0 28.5 11.5T880-480q0 82-31.5 155t-86 127.5q-54.5 54.5-127 86T480-80Z"/>
+                </svg>
+              }   
+
+            </div>
+            <label htmlFor="accepted-field" className="text-label">Accepted Field</label>
+            <input
+              id="field-input"
+              type="text"
+              onChange={(e) => {setSelectedField(e.target.value);}}
+              value={selectedField}
+            />
+            <span className="button-group">
+              <button className="cancel" onClick={() => handleCancelCreate()}>Cancel</button>
+              <button className="submit" onClick={() => handleLabelTemplate()}>Next</button>
+            </span>
+          </>
+        }
+
+        { status === 'confirming' && 
+          <>
+            <div className="upload-container">
               {templateImage && <img className="background" src={`data:image/png;base64,${templateImage}`} />}
+            
+              {loading &&
+                <svg className="loading-icon" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3">
+                  <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-155.5t86-127Q252-817 325-848.5T480-880q17 0 28.5 11.5T520-840q0 17-11.5 28.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-17 11.5-28.5T840-520q17 0 28.5 11.5T880-480q0 82-31.5 155t-86 127.5q-54.5 54.5-127 86T480-80Z"/>
+                </svg>
+              }   
             </div>
             <label htmlFor="accepted-field" className="text-label">Accepted Field</label>
             <input
