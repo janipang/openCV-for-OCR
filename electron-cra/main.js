@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, screen  } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, screen, shell  } = require("electron");
 const url = require("url");
 const path = require("path");
 const fs = require("fs");
@@ -239,7 +239,7 @@ function getBackUpData() {
   // send the full dir path
   stored_data.forEach((item) => {
     if (item.location) {
-      item.location = path.join(perm_folders.backup.base, item.location);
+      item.location = path.join(perm_folders.backup.list, item.location);
     }
   });
 
@@ -302,6 +302,20 @@ function postBackUpData(name, dirName, date, inputDir, outputPath, templateData,
     backUps.push(newBackUp);
   fs.writeFileSync(backUpsFilePath, JSON.stringify(backUps, null, 2));
   console.log("/ Saved BackUp Data Success")
+  return true;
+}
+
+function deleteBackUpData(id){
+  const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
+  const backUps = getRawBackUpData();
+
+  const updatedBackUps = backUps.filter(item => item.id !== id);
+  if (updatedBackUps.length === backUps.length) {
+    console.log(`❌ ไม่พบข้อมูลแบ็คอัพที่มี id: ${id}`);
+    return;
+  }
+  fs.writeFileSync(backUpsFilePath, JSON.stringify(updatedBackUps, null, 2));
+  console.log(`✅ ลบข้อมูลแบ็คอัพที่มี id: ${id} สำเร็จ`);
   return true;
 }
 
@@ -470,6 +484,19 @@ app.whenReady().then(() => {
     console.log("/ Fetched BackUps Data Success\n");
     return getBackUpData();
   })
+
+  // handle open backup folder
+  ipcMain.handle("open-folder", async (_event, folderPath) => {
+    shell.openPath(folderPath);
+    console.log("/ Navigated User to File Explorer with path ", folderPath, "\n");
+    return true;
+  });
+
+  // handle delete backups
+  ipcMain.handle("delete-backups", async (_event, id) => {
+    console.log("/ Deleted BackUp Data Success\n");
+    return deleteBackUpData(id);
+  });
 
   // handle get templates
   ipcMain.handle("get-templates", async () => {

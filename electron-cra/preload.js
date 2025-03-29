@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld("electron", {
         ipcRenderer.removeAllListeners('process-update');
     },
     getBackUps: () => ipcRenderer.invoke('get-backups'),
+    openFolder: (dirPath) => ipcRenderer.invoke('open-folder', dirPath),
     getTemplates: () => ipcRenderer.invoke('get-templates'),
     uploadTemplate: (file) => ipcRenderer.invoke("upload-template", file),
     processTemplate: () => ipcRenderer.invoke("process-template"),
