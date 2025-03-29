@@ -62,14 +62,30 @@ article.scanner .title{
     font-size: var(--medium-font-size);
 }
 
+article.scanner p.dirName{
+  font-size: var(--medium-font-size);
+  font-weight: var(--medium-font-weight);
+  color: var(--dark-blue);
+}
+
+article.scanner .flex-row{
+  display: flex;
+  gap:8px;
+  align-items: center;
+}
+
 article.scanner .progress{
     color: var(--black);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 article.scanner .progress .file-list {
   display: flex;
   gap: var(--file-list-gap);
   flex-direction: column;
+  flex-grow: 1;
 }
 
 article.scanner .progress .small-wide-card {
@@ -132,6 +148,25 @@ article.scanner input[type="text"] {
   font-size: var(--small-font-size);
   font-weight: var(--medium-font-weight);
   color: var(--black);
+}
+
+article.scanner .rounded-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 4px dashed var(--light-gray);
+  border-radius: 16px;
+  background-color: var(--white);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin-top: 2rem;
+}
+
+article.scanner .rounded-box p{
+  font-size: var(--medium-font-size);
+  font-weight: var(--bold-font-weight);
+  color: var(--dark-gray);
 }
 
 button.cancel{

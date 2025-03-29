@@ -214,18 +214,25 @@ export default function HomePage() {
                 {/* https://stackoverflow.com/questions/71444475/webkitdirectory-in-typescript-and-react */}
               </span>
             </div>
+
             <div className="field-card">
               <p className="field-name">Select Output Folder</p>
-              <span>
+              <span className="flex-row">
+                {outputDir && 
+                  <p className="dirName">{outputDir.length > 30 ? `...${outputDir.slice(-30)}` : outputDir}</p>
+                }
                 <button className="icon-button file-trigger" onClick={handleSelectDirectory}>
                   <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 20.2C3.45 20.2 2.97933 20.0043 2.588 19.613C2.19667 19.2217 2.00067 18.7507 2 18.2V6.20001C2 5.65001 2.196 5.17935 2.588 4.78801C2.98 4.39668 3.45067 4.20068 4 4.20001H9.175C9.44167 4.20001 9.696 4.25001 9.938 4.35001C10.18 4.45001 10.3923 4.59168 10.575 4.77501L12 6.20001H20C20.55 6.20001 21.021 6.39601 21.413 6.78801C21.805 7.18001 22.0007 7.65068 22 8.20001V18.2C22 18.75 21.8043 19.221 21.413 19.613C21.0217 20.005 20.5507 20.2007 20 20.2H4ZM4 18.2H20V8.20001H11.175L9.175 6.20001H4V18.2Z" fill="white"/>
                   </svg>
-                  <p>Select Folder</p>
+                  { !outputDir &&
+                    <p>Select Folder</p>
+                  }
                 </button>
               </span>
               
             </div>
+
             <div className="field-card">
               <p className="field-name">Output File Name</p>
               <span className="button-group">
@@ -259,7 +266,7 @@ export default function HomePage() {
                 </button>
               : 
                 <button className="icon-button success">
-                  <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
                     <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/>
                   </svg>
                   <p>Complete</p>
@@ -273,6 +280,11 @@ export default function HomePage() {
         <section className="progress">
           <h2 className="title">Progress</h2>
           <div className='file-list'>
+            {inputFiles.length == 0 && 
+              <div className="rounded-box">
+                <p> No Files Selected</p>
+              </div>
+            }
             {inputFiles.map((file, idx) => (
               <div key={file.name} className='small-wide-card'>
                 <p className="file-name">{file.name}</p>

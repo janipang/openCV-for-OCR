@@ -144,8 +144,7 @@ article.template section.create button.cancel {
   color: var(--black);
 }
 
-article.template section.create button.next,
-button.submit {
+article.template section.create button.next,article.template section.create button.submit {
   background-color: var(--black);
   border: 1px solid var(--black);
   color: var(--white);
