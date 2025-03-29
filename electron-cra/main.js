@@ -4,9 +4,9 @@ const path = require("path");
 const fs = require("fs");
 const { spawn, exec } = require("child_process");
 const readline = require("readline");
-// const pdfPoppler = require('pdf-poppler');
 
 let mainWindow;
+let activeProcesses = {};
 
 const baseTempDir = path.join(
   app.getPath("temp"),
@@ -28,6 +28,8 @@ const folders = {
     plain: path.join(baseTempDir, "src", "template", "plain"),
     plainpng: path.join(baseTempDir, "src", "template", "plainpng"),
     bounded: path.join(baseTempDir, "src", "template", "bounded"),
+    object: path.join(baseTempDir, "src", "template", "object"),
+    final: path.join(baseTempDir, "src", "template", "final"),
   },
 };
 
@@ -65,6 +67,9 @@ function createWindow() {
   });
   mainWindow.loadURL(startUrl);
 }
+
+// ///////// FUNCTION ////////////// FUNCTION ////////////// FUNCTION ////////////// FUNCTION ////////////// FUNCTION //////////////
+// ///////// FUNCTION ////////////// FUNCTION ////////////// FUNCTION ////////////// FUNCTION ////////////// FUNCTION //////////////
 
 function checkAndCreatePermStorage() {
   const createFolderIfNotExist = (folderPath) => {
@@ -119,7 +124,9 @@ function createFileStructure() {
     "document.py",
     "process.py",
     "services.py",
+    "serialize.py",
     "template.py",
+    "template_show.py",
     "png_converter.py",
     "requirements.txt",
   ];
@@ -130,7 +137,7 @@ function createFileStructure() {
   console.log("/ Copied Resource Files Success.\n");
 }
 
-function runCommand(command, args, cwd) {
+function runCommand(command, args, cwd, processName) {
   return new Promise((resolve, reject) => {
     const process = spawn(command, args, { cwd, shell: true });
     const rl = readline.createInterface({
@@ -138,15 +145,6 @@ function runCommand(command, args, cwd) {
       output: process.stderr,
       terminal: false,
     });
-
-    // process.stdout.on("data", (data) => {
-    //   const message = data.toString().trim();
-    //   const parts = message.split(':');
-    //   if (parts[0] == 'process-update') {
-    //     console.log(message)
-    //     mainWindow.webContents.send("process-update", (parts[1] + ":" +  parts[2]).toString());
-    //   }
-    // });
 
     // use readline instead directly read from stdout prevent buffering and receiving multiple lines
     rl.on("line", (line) => {
@@ -161,6 +159,9 @@ function runCommand(command, args, cwd) {
     process.stderr.on("data", (data) => console.error(`${command} error: ${data}`));
 
     process.on("close", (code) => {
+      if (activeProcesses[processName] === process) {
+        delete activeProcesses[processName]; // Remove the process from tracking
+      }
       if (code === 0) {
         resolve();
       } else {
@@ -170,23 +171,35 @@ function runCommand(command, args, cwd) {
   });
 }
 
+function killAllPythonProcesses() {
+  Object.keys(activeProcesses).forEach((key) => {
+    console.log(`Killing process: ${key}`);
+    activeProcesses[key].kill();
+  });
+  activeProcesses = {}; // Reset the object
+}
+
+function sanitizeFileName(str) {
+  return str
+    .replace(/ /g, "_")
+    .replace(/\//g, "-")
+    .replace(/[\\:*?"<>|]/g, "");
+}
+
+// /////////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY /////////
+// /////////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY /////////
+
 async function runPythonProcess(input_dir, output_dir, output_file_name, selected_field) {
   try {
-    // console.log("Upgrading pip...");
-    // await runCommand("python", ["-m", "pip", "install", "--upgrade", "pip"], folders.base);
-
-    // console.log("Upgraded pip. Installing dependencies...");
-    // await runCommand("python", ["-m", "pip", "install", "-r", "requirements.txt"], folders.base);
-
     console.log("Running process.py...");
-    await runCommand("python", [
+    activeProcesses.pyScanner = await runCommand("python", [
       "-u",
       path.join(folders.base, "process.py"),
       input_dir,
       output_dir,
       output_file_name,
       JSON.stringify(selected_field) // Convert array to JSON string
-    ], folders.base);
+    ], folders.base, 'pyScanner');
 
     console.log("✅ Processing completed!");
   } catch (error) {
@@ -194,17 +207,36 @@ async function runPythonProcess(input_dir, output_dir, output_file_name, selecte
   }
 }
 
-async function runPythonTemplate(input_path, output_path) {
+async function runPythonTemplate(input_path, output_path, object_path) {
   try {
     console.log("Running template.py...");
-    await runCommand("python", [
+    activeProcesses.pyTemplate = await runCommand("python", [
       "-u",
       path.join(folders.base, "template.py"),
       input_path,
       output_path,
-    ], folders.base);
+      object_path,
+    ], folders.base, 'pyTemplate');
 
     console.log("✅ Scanning Template Field Completed!");
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+  }
+}
+
+async function runPythonTemplateShow(document_object_path, field, json_save_path, image_save_path) {
+  try {
+    console.log("Running template_show.py...");
+    activeProcesses.pyTemplateView = await runCommand("python", [
+      "-u",
+      path.join(folders.base, "template_show.py"),
+      document_object_path,
+      field,
+      json_save_path,
+      image_save_path,
+    ], folders.base,'pyTemplateView');
+
+    console.log("✅ Write Boxed Selected Field Completed!");
   } catch (error) {
     console.error("❌ Error:", error.message);
   }
@@ -213,21 +245,19 @@ async function runPythonTemplate(input_path, output_path) {
 async function runPngConverter(input_path, output_dir, page) {
   try {
     console.log("Running png_converter.py...");
-    await runCommand("python", [
+    activeProcesses.pyConverter = await runCommand("python", [
       "-u",
       path.join(folders.base, "png_converter.py"),
       input_path,
       output_dir,
       page
-    ], folders.base);
+    ], folders.base, 'pyConverter');
 
     console.log("✅ Convert PDF to PNG Completed!");
   } catch (error) {
     console.error("❌ Error:", error.message);
   }
 }
-
-
 
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
 // API /////////////////////// API //////////////////////  API ////////////////// API ////////////////////////////////////////
@@ -462,12 +492,6 @@ app.whenReady().then(() => {
 
   // handle run process on files
   ipcMain.handle("process-files", async (_event, config) => {
-    function sanitizeFileName(str) {
-      return str
-        .replace(/ /g, "_")  // Replace spaces with underscores
-        .replace(/\//g, "-") // Replace slashes with hyphens
-        .replace(/[\\:*?"<>|]/g, ""); // Remove invalid filename characters
-    }
     console.log("running with config: ", config);
     const start_time = Date();
     const { output_dir, name, template } = config;
@@ -545,6 +569,7 @@ app.whenReady().then(() => {
   ipcMain.handle("process-template", async (_event) => {
     const plainTemplateFolder = folders.template.plain;
     const boundedTemplateFolder = folders.template.bounded;
+    const objectStoredPath = path.join(folders.template.object, 'document.pkl');
     const fileName = fs.readdirSync(plainTemplateFolder)[0];
     console.log("fileName: ", fileName);
     const plainTemplateFilePath = path.join(plainTemplateFolder, fileName);
@@ -562,7 +587,7 @@ app.whenReady().then(() => {
     }
     
     // run python and save bounding-box image to bounded template folder
-    await runPythonTemplate(plainTemplateFilePath, boundedTemplateFolder);
+    await runPythonTemplate(plainTemplateFilePath, boundedTemplateFolder, objectStoredPath);
     console.log("/ Boxed Template Saved to " , boundedTemplateFilePath, "Success.\n");
 
     let targetFile = fs.readdirSync(boundedTemplateFolder)[0];
@@ -576,6 +601,17 @@ app.whenReady().then(() => {
     else{
       return null;
     }
+  });
+
+
+// this not finish bro!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ipcMain.handle("view-final-template", async (_event, name, field) => {
+    const documentObjectPath = path.join(folders.template.object,'document.pkl');
+    const jsonSavePath = path.join(folders.template.json, sanitizeFileName(name) +'.json');
+    const imageSavePath = path.join(folders.template.final, sanitizeFileName(name) +'.png');
+    runPythonTemplateShow(documentObjectPath, field, jsonSavePath, imageSavePath);
+    console.log("/ Show Template Image from ", folders.template, "Success.\n");
+    return true;
   });
 
   ipcMain.handle("save-template", async (_event, name, field) => {
@@ -601,7 +637,10 @@ app.whenReady().then(() => {
   });
 });
 
+app.on("will-quit", killAllPythonProcesses);
+
 app.on("window-all-closed", () => {
+  killAllPythonProcesses(); // Call function inside arrow function
   if (process.platform !== "darwin") {
     const appTempFolder = folders.base;
     if (fs.existsSync(appTempFolder)) {

@@ -3,7 +3,7 @@ import fitz
 from bounding_box import *
 import numpy as np
 import pandas as pd
-import os
+from pythainlp import correct
 
 class Document:
     def __init__(self, pdf_path) -> None:
@@ -27,13 +27,21 @@ class Document:
         self.summary_line = []
         self.col_sep_word = []
         self.table_start = None
+        print("Start")
         self.__pdf_to_png()
+        print("Convert to PNG Finished")
         self.__find_tables()
+        print("Detected All Table")
         self.__extract_line()
+        print("Extract All Line Completed")
         self.__partition_columns_from_line()
+        print("Partition By Column Completed")
         self.__extract_header()
+        print("Extract Header Completed")
         self.merge_by_active_columns()
+        print("Merge Bounding Box by Active Column")
         self.__pair_header()
+        print("Paired Header")
         # print(self.element["Header_Data"])
 
     def __pdf_to_png(self):
@@ -79,7 +87,7 @@ class Document:
                         first_line_y = y  # First Horizontal Line after start_y
                     last_line_y = y  # Last Horizontal Line
 
-            # cv2_imshow(display_img)
+            # cv2.imshow(display_img)
 
             # No Lines Found
             if first_line_y is None or last_line_y is None:
@@ -102,14 +110,18 @@ class Document:
             self.element["Main_Box"].append(main_box)
 
             # main_box.show_image()
+            if len(box_boundary) == 1:
+                i, j = box_boundary[0]
+                k = main_box.add_child((0, i - first_line_y, right - left, j - i), box_type="TLB_SUMMARY")
+                self.element["Tables"].append(k)
 
-
-            i, j = box_boundary[0]
-            k = main_box.add_child((0, i - first_line_y, right - left, j - i), box_type="TLB_HEADER")
-            self.element["Tables"].append(k)
-            i, j = box_boundary[1]
-            k = main_box.add_child((0, i - first_line_y, right - left, j - i), box_type="TLB_VALUE")
-            self.element["Tables"].append(k)
+            if len(box_boundary) > 1:
+                i, j = box_boundary[0]
+                k = main_box.add_child((0, i - first_line_y, right - left, j - i), box_type="TLB_HEADER")
+                self.element["Tables"].append(k)
+                i, j = box_boundary[1]
+                k = main_box.add_child((0, i - first_line_y, right - left, j - i), box_type="TLB_VALUE")
+                self.element["Tables"].append(k)
             if len(box_boundary) == 3:
                 i, j = box_boundary[2]
                 k = main_box.add_child((0, i - first_line_y, right - left, j - i), box_type="TLB_SUMMARY")
@@ -227,7 +239,7 @@ class Document:
                     flag = not flag
 
             # for y in lines:
-            #     cv2.line(binary, (0, y), (binary.shape[1], y), (255, 0, 0), 2)
+            #     cv2.line(display_img, (0, y), (display_img.shape[1], y), (255, 0, 0), 2)
 
             # os.makedirs(output_dir, exist_ok=True)
 
@@ -283,7 +295,7 @@ class Document:
                 columns_pos.append((tmp, x))
                 tmp = x
 
-            # cv2_imshow(debug_img)
+            # cv2.imshow(debug_img)
 
             # Extract and save columns
             display_col = display_line.copy()
@@ -374,7 +386,7 @@ class Document:
             cv2.rectangle(img, tl, br, (0, 255, 0), 4)
             obbox.add_child([tl, br], box_type="HEADER_TEXT")
 
-        # cv2_imshow(img)
+        # cv2.imshow(img)
         # obbox.show_image_highlight()
         return text_data
 
@@ -393,17 +405,19 @@ class Document:
 
             if last_key is None or left_pos < bbox.child[0].tl[0] + ths:
                 if not last_key is None:
-                    self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable"))
+                    items = BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Split_Row")
+                    items.note = last_key
+                    self.element["Selectable_Field"].append(items)
                 tmp = []
                 tmp.append(child)
-                last_key = extracted_text
+                last_key = correct(extracted_text)
                 key_value_pairs[last_key] = []
             else:
                 tmp.append(child)
                 key_value_pairs[last_key].append(extracted_text)
 
         if not tmp == []:
-            self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable"))
+            self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Split_Row"))
 
         ret = []
 
@@ -429,7 +443,7 @@ class Document:
 
             if last_y is None or y_pos > last_y + ths:
                 if not last_y is None:
-                    self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable"))
+                    self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Paragraph"))
                     paragraph.append(paragraph_tmp)
                 tmp = []
                 paragraph_tmp = []
@@ -438,7 +452,7 @@ class Document:
             paragraph_tmp.append(extracted_text)
 
         if not tmp == []:
-            self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable"))
+            self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Paragraph"))
             paragraph.append(paragraph_tmp)
 
         ret = []
@@ -446,7 +460,7 @@ class Document:
         for lst in paragraph:
             ret.append(" ".join(lst))
 
-        return [ret]
+        return ret
 
 
 
@@ -480,5 +494,14 @@ class Document:
                     cv2.putText(display_img, str(idx), text_position,
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
                     idx += 1
+            for x in self.element["Tables"]:
+                if x.box_type == "TLB_SUMMARY":
+                    color = (0, 255, 0)
+                elif x.box_type == "TLB_VALUE":
+                    color = (0, 0, 255)
+                elif x.box_type == "TLB_HEADER":
+                    color = (255, 0, 0)
+                if not np.array_equal(x.src_image, p_copy):
+                    continue
+                cv2.rectangle(display_img, (x.tl[0] + 2, x.tl[1] + 2), (x.br[0] - 2, x.br[1] - 2), color, 2)
             cv2.imwrite(f"{output_dir}/Sample_Scan_P{p_num + 1}.png", display_img)
-            

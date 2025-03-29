@@ -1,5 +1,6 @@
 import cv2
 import easyocr
+from pythainlp import correct
 
 reader = easyocr.Reader(['th', 'en'])
 
@@ -35,33 +36,55 @@ class BoundingBox:
         if self.paragraph != None:
             return self.paragraph
 
+        # k = []
+        # for data in self.text:
+        #     # box, text
+        #     _, text = data
+        #     tmp = text.split(" ")
+        #     k.extend(tmp)
+        # corrected = []
+        # for i in k:
+        #     res = find_nearest_word(i, dictionary)
+        #     if res:
+        #         corrected.append(res)
+        #     else:
+        #         res = correct(i)
+        #         dictionary.append(res)
+        #         corrected.append(res)
+        #     print(f"Corrected : {i} -> {res}")
+        # self.paragraph = "".join(corrected)
+        # print(f"Corrected Paragraph: {self.paragraph}")
+
         k = []
         for data in self.text:
             # box, text
             _, text = data
-            k.append(text)
-        self.paragraph = " ".join(k)
+            k.extend(text)
+        self.paragraph = "".join(k)
+        # print(f"Extracted Text : {self.paragraph}")
         return self.paragraph
 
     def textOCR(self):
         if self.text != None:
             return self.text
-        t = self.image()
+        t = self.image(otsu=True)
         self.text = reader.readtext(t, paragraph=True, y_ths=0.01)
 
     def show_image(self) -> None:
         display = self.src_image.copy()
         display = display[self.tl[1] : self.br[1], self.tl[0] : self.br[0]]
-        # cv2_imshow(display)
+        # cv2.imshow(display)
 
-    def show_image_highlight(self) -> None:
-        display = self.src_image.copy()
+    def show_image_highlight(self, display = None):
+        if display is None:
+            display = self.src_image.copy()
         q = [self]
         while q != []:
             bbox = q.pop(0)
             cv2.rectangle(display, bbox.tl, bbox.br, (0, 255, 0), 4)
             q.extend(bbox.child)
-        # cv2_imshow(display)
+        # cv2.imshow(display)
+        return display
 
     def image(self, otsu=False):
         image = self.src_image.copy()
@@ -146,4 +169,3 @@ class BoundingBox:
             child.parent = None
 
         self.child = []
-        
