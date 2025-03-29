@@ -365,6 +365,9 @@ function getTemplateData() {
     if (item.image) {
       item.image = path.join(perm_folders.template.image, item.image);
     }
+    if (item.json_path) {
+      item.json_path = path.join(perm_folders.template.json, item.json_path);
+    }
   });
  
   return stored_data;

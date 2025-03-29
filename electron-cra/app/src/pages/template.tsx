@@ -148,9 +148,11 @@ export default function TemplatePage() {
         </span>
 
         <div className="template-list">
-          {templateData.map((template) => (
-            <TemplateCard templateData={template} setTemplateItemName={setTemplateItemName}/>
-          ))}
+          <div className="template-list-content">
+            {templateData.map((template) => (
+              <TemplateCard templateData={template} setTemplateItemName={setTemplateItemName}/>
+            ))}
+          </div>
         </div>
       </section>
 
