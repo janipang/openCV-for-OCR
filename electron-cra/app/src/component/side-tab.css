@@ -26,6 +26,6 @@ aside a.current {
 
 aside p {
   margin: 2rem 0rem;
-  font-size: var(--medium-font-size);
+  font-size: var(--small-font-size);
   font-weight: var(--bold-font-weight);
 }
