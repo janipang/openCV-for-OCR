@@ -279,6 +279,13 @@ function getBackUpData() {
   return stored_data;
 }
 
+function getBackUpDataById(id) {
+  const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
+  const stored_data = JSON.parse(fs.readFileSync(backUpsFilePath, 'utf8'));
+
+  return stored_data.find(item => item.id == id) || null;
+}
+
 function getRawBackUpData() {
   const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
   const stored_data = JSON.parse(fs.readFileSync(backUpsFilePath, 'utf8'));
@@ -340,15 +347,24 @@ function postBackUpData(name, dirName, date, inputDir, outputPath, templateData,
 
 function deleteBackUpData(id){
   const backUpsFilePath = path.join(perm_folders.backup.base, 'data.json');
+  const backUpListFolder = perm_folders.backup.list;
   const backUps = getRawBackUpData();
+  
+  // delete existing specific backup folder
+  const specificDirName = path.join(backUpListFolder, getBackUpDataById(id).location);
+  console.log('Deleting at: ', specificDirName, ' ...');
+  if (fs.existsSync(specificDirName)) {
+      fs.rmSync(specificDirName, { recursive: true, force: true });
+  }
 
   const updatedBackUps = backUps.filter(item => item.id !== id);
   if (updatedBackUps.length === backUps.length) {
     console.log(`❌ ไม่พบข้อมูลแบ็คอัพที่มี id: ${id}`);
     return;
   }
+
   fs.writeFileSync(backUpsFilePath, JSON.stringify(updatedBackUps, null, 2));
-  console.log(`✅ ลบข้อมูลแบ็คอัพที่มี id: ${id} สำเร็จ`);
+  console.log(`/ Deleted BackUp Data id: ${id} Success`);
   return true;
 }
 
@@ -536,7 +552,7 @@ app.whenReady().then(() => {
   });
 
   // handle delete backups
-  ipcMain.handle("delete-backups", async (_event, id) => {
+  ipcMain.handle("delete-backup", async (_event, id) => {
     console.log("/ Deleted BackUp Data Success\n");
     return deleteBackUpData(id);
   });

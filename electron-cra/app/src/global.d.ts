@@ -8,6 +8,7 @@ export interface ElectronAPI {
     onProcessUpdate: (callback: (data: string) => void) => void;
     removeProcessUpdateListener: () => void;
     getBackUps: () => Promise<BackUp[]>;
+    deleteBackUp: (id: string) => Promise<boolean>;
     openFolder: (folderPath) => Promise<boolean>;
     openFileInFolder: (folderPath) => Promise<boolean>;
     getTemplates: () => Promise<Template[]>;
