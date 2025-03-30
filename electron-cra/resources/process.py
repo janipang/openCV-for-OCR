@@ -10,7 +10,7 @@ if __name__ == "__main__":
     output_dir = sys.argv[2]
     output_file_name = sys.argv[3]
     # I CHANGE THIS : the 4th n 5th params
-    json_field_file_path = json.loads(sys.argv[4])
+    json_field_file_path = sys.argv[4]
     table_include = sys.argv[5]
 
     # I CHANGE THIS : last params

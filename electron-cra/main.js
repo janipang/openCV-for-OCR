@@ -225,16 +225,17 @@ async function runPythonTemplate(input_path, output_path, object_path) {
   }
 }
 
-async function runPythonTemplateShow(document_object_path, field, json_save_path, image_save_path) {
+async function runPythonTemplateShow(input_pdf_path, field, json_save_path, image_save_path, bounded_file_path) {
   try {
     console.log("Running template_show.py...");
     activeProcesses.pyTemplateView = await runCommand("python", [
       "-u",
       path.join(folders.base, "template_show.py"),
-      document_object_path,
-      field,
+      input_pdf_path,
+      JSON.stringify(field),
       json_save_path,
       image_save_path,
+      bounded_file_path,
     ], folders.base,'pyTemplateView');
 
     console.log("✅ Write Boxed Selected Field Completed!");
@@ -579,9 +580,7 @@ app.whenReady().then(() => {
   ipcMain.handle("process-template", async (_event) => {
     const plainTemplateFolder = folders.template.plain;
     const boundedTemplateFolder = folders.template.bounded;
-    const objectStoredPath = path.join(folders.template.object, 'document.pkl');
     const fileName = fs.readdirSync(plainTemplateFolder)[0];
-    console.log("fileName: ", fileName);
     const plainTemplateFilePath = path.join(plainTemplateFolder, fileName);
     // delete existing bounded template
     console.log("Deleting Old template...");
@@ -595,7 +594,7 @@ app.whenReady().then(() => {
     }
     
     // run python and save bounding-box image to bounded template folder
-    await runPythonTemplate(plainTemplateFilePath, boundedTemplateFolder, objectStoredPath);
+    await runPythonTemplate(plainTemplateFilePath, boundedTemplateFolder);
     console.log("/ Boxed Template Saved to " , boundedTemplateFolder, "Success.\n");
 
     let targetFile = fs.readdirSync(boundedTemplateFolder)[0];
@@ -615,18 +614,31 @@ app.whenReady().then(() => {
 // this not finish bro!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ipcMain.handle("view-final-template", async (_event, name, field) => {
     console.log("view-final-template invoked handled ...", name, field);
-    const plainPngFolder = path.join(folders.template.plainpng);
+    const boundedTemplateFolder = folders.template.bounded;
+    const plainTemplateFolder = folders.template.plain;
+    // const plainPngFolder = path.join(folders.template.plainpng);
+    const fileName = fs.readdirSync(plainTemplateFolder)[0];
+
+    const plainTemplateFilePath = path.join(plainTemplateFolder, fileName);
     const jsonSavePath = path.join(folders.template.json, sanitizeFileName(name) +'.json');
     const imageSavePath = path.join(folders.template.final, sanitizeFileName(name) +'.png');
-    let plainPngFile = fs.readdirSync(boundedTemplateFolder)[0];
-    let plainPngPath = path.join(plainPngFolder, plainPngFile);
+    
+    // const plainPngFile = fs.readdirSync(plainPngFolder)[0];
+    // let plainPngPath = path.join(plainPngFolder, plainPngFile);
+    
+    const boundedFile = fs.readdirSync(boundedTemplateFolder)[0];
+    let boundedFilePath = path.join(boundedTemplateFolder, boundedFile);
 
-    await runPythonTemplateShow(plainPngPath, field, jsonSavePath, imageSavePath);
+    await runPythonTemplateShow(plainTemplateFilePath, field, jsonSavePath, imageSavePath, boundedFilePath);
     console.log("/ Show Template Image from ", imageSavePath, "Success.\n");
 
     let finalFolder = folders.template.final;
-    let finalFile = fs.readdirSync(finalFolder)[0];
+    let finalFile = sanitizeFileName(name) +'.png';
     let finalFilePath = path.join(finalFolder, finalFile);
+
+    // if (!fs.existsSync(finalFolder)) {
+    //   fs.writeFileSync(finalFilePath, '[]');
+    // }
     // return bounded selected field only template image to user
     const imageData = fs.readFileSync(finalFilePath).toString("base64");
     if (imageData) {
@@ -638,13 +650,12 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle("save-template", async (_event, name) => {
-    const boundedTemplateFolder = folders.template.bounded;
-    const fileName = fs.readdirSync(boundedTemplateFolder)[0];
-    const boundedTemplateFilePath = path.join(boundedTemplateFolder, fileName);
+    const finalTemplateFolder = folders.template.final;
+    const fileName = fs.readdirSync(finalTemplateFolder)[0];
+    const boundedTemplateFilePath = path.join(finalTemplateFolder, fileName);
     
-    let finalFolder = folders.template.final;
-    let finalFile = fs.readdirSync(finalFolder)[0];
-    let finalFilePath = path.join(finalFolder, finalFile);
+    let finalFile = fs.readdirSync(finalTemplateFolder)[0];
+    let finalFilePath = path.join(finalTemplateFolder, finalFile);
 
     const image = fs.readFileSync(boundedTemplateFilePath);
     const jsonData = fs.readFileSync(finalFilePath);

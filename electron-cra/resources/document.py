@@ -42,6 +42,8 @@ class Document:
         print("Merge Bounding Box by Active Column")
         self.__pair_header()
         print("Paired Header")
+        self.extract_summary()
+        print("Extracted Summary")
         # print(self.element["Header_Data"])
 
     def __pdf_to_png(self):
@@ -479,6 +481,72 @@ class Document:
             else:
                 header_data = self.match_keys_to_values(i)
             self.element["Header_Data"].extend(header_data)
+            
+    def extract_summary(self, left_cut=1500):
+        for i in self.element["Tables"]:
+            if i.box_type == "TLB_SUMMARY":
+                bbox = i
+                break
+        p = bbox.src_image
+        white_background = np.full(p.shape, 255, dtype=np.uint8)
+        p_copy = p.copy()
+        white_background[bbox.tl[1]:bbox.br[1], bbox.tl[0] + left_cut :bbox.br[0]] = p[bbox.tl[1]:bbox.br[1], bbox.tl[0] + left_cut:bbox.br[0]]
+        summary = white_background
+        # cv2_imshow(summary)
+        summary_lst = []
+        reader = easyocr.Reader(['th', 'en'])
+        text_data = reader.readtext(summary, detail=1, paragraph=True, decoder="wordbeamsearch", x_ths=0.8, y_ths=0.01)     #in order ([box-coords], text, confidence)
+
+        for bbox, text in text_data:
+            top_left, _, bottom_right, _ = bbox
+            tl = [int(x) for x in top_left]
+            br = [int(x) for x in bottom_right]
+            tlx, tly = tl
+            brx, bry = br
+
+
+            k = BoundingBox(p, [tl, br], box_type="SUMMARY")
+            summary_lst.append(k)
+
+        summary_block = BoundingBox.merge_bounding_boxes(*summary_lst, box_type="SUMMARY_BLOCK")
+
+        key_value_pairs = {}
+
+        last_key = None
+        tmp = []
+        element = []
+
+        for child in summary_block.child:
+            extracted_text = child.print_paragraph().strip()
+            if not extracted_text:
+                continue
+
+            left_pos = 1900
+
+            if last_key is None or left_pos > child.tl[0]:
+                if not last_key is None:
+                    items = BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Summary")
+                    items.note = last_key
+                    self.element["Selectable_Field"].append(items)
+                tmp = []
+                tmp.append(child)
+                last_key = extracted_text
+                key_value_pairs[last_key] = []
+            else:
+                tmp.append(child)
+                key_value_pairs[last_key].append(extracted_text)
+
+        if not tmp == []:
+            items = BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Summary")
+            items.note = last_key
+            self.element["Selectable_Field"].append(items)
+
+        ret = []
+
+        for key in key_value_pairs:
+            key_value_pairs[key] = " ".join(key_value_pairs[key])
+            ret.append([key, key_value_pairs[key]])
+        self.element["Header_Data"].extend(ret)
 
     def process_as_sample(self, output_dir):
         idx = 1
@@ -505,3 +573,22 @@ class Document:
                     continue
                 cv2.rectangle(display_img, (x.tl[0] + 2, x.tl[1] + 2), (x.br[0] - 2, x.br[1] - 2), color, 2)
             cv2.imwrite(f"{output_dir}/Sample_Scan_P{p_num + 1}.png", display_img)
+
+    def read_table(self):
+        table_rows = []
+        for row in self.element["Full_Table"]:
+            row_box = []
+            for col in row:
+                for element in col:
+                    row_box.append(element)
+            table_rows.append(row_box)
+        table_value = []
+        for row in table_rows:
+            row_value = []
+            for col in row:
+                col.textOCR()
+                txt = col.print_paragraph()
+                row_value.append(txt)
+            print(row_value)
+            table_value.append(row_value)
+        return table_value

@@ -86,6 +86,7 @@ export default function TemplatePage() {
     try{
       const result = await window.electron.viewFinalTemplate(templateName, parseNumberRanges(selectedField));
       setTemplateImage(result);
+      setLoading(false);
       setStatus('confirming');
       console.log("viewFinalTemplate sent, received in main process:", result);
     }
@@ -226,13 +227,6 @@ export default function TemplatePage() {
                 </svg>
               }   
             </div>
-            <label htmlFor="accepted-field" className="text-label">Accepted Field</label>
-            <input
-              id="field-input"
-              type="text"
-              onChange={(e) => {setSelectedField(e.target.value);}}
-              value={selectedField}
-            />
             <span className="button-group">
               <button className="cancel" onClick={() => handleCancelCreate()}>Cancel</button>
               <button className="submit" onClick={() => handleSaveTemplate()}>Save</button>

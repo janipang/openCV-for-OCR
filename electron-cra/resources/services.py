@@ -2,7 +2,7 @@ import os
 import json
 from document import *
 
-def process_file_as_sample(target, output_dir="/content/", object_store_path=""):
+def process_file_as_sample(target, output_dir="/content/"):
     try:
         print(f"Processing: {target}")
 
@@ -15,8 +15,18 @@ def process_file_as_sample(target, output_dir="/content/", object_store_path="")
         print(e)
         
 # I CHANGE THIS : params[1] + Document()
-def draw_only_selected_field(plain_png_path, field, json_save_path, image_save_path):
-    document = Document(plain_png_path)
+def draw_only_selected_field(template_file_path, field, json_save_path, image_save_path, bounded_file_path):
+    print('DRAW ONLY RUNNING...')
+    print('plain_png_path ', template_file_path)
+    print('field ', field)
+    print('json_save_path ', json_save_path)
+    print('image_save_path ', image_save_path)
+    print('bounded_file_path ', bounded_file_path)
+    
+    document = Document(template_file_path)
+    document.process_as_sample(bounded_file_path)
+    # I CHANGE THIS : just write file any where
+    
     json_dict = {}
     json_dict["Selected_Keys"] = []
     json_dict["Selected_Indexs"] = []
@@ -54,13 +64,15 @@ def draw_only_selected_field(plain_png_path, field, json_save_path, image_save_p
         json.dump(json_dict, file, indent=4)
         
         
-def process_file(target_json, input_dir = "/content/INV_Dataset/", output_dir="/content/invoice_data.xlsx"):
+def process_file(target_json, input_dir = "/content/INV_Dataset/", output_path="/content/invoice_data.xlsx", read_table = False):
 
     pdf_files = [f for f in os.listdir(input_dir) if f.endswith(".pdf")]
 
     processed_data = []
     with open(target_json, 'r', encoding='utf-8') as file:
         target = json.load(target)
+    table = []
+    # I CHANGE THIS : new var
 
     for pdf_file in pdf_files:
         pdf_path = os.path.join(input_dir, pdf_file)
@@ -80,6 +92,10 @@ def process_file(target_json, input_dir = "/content/INV_Dataset/", output_dir="/
                 if data[0] in target["Selected_Keys"]:
                     row.append(data[1])
 
+            # I CHANGE THIS : write table summary
+            if read_table:
+                table.extend(d.read_table())
+
             # print(row)
             processed_data.append(row)
             print(f"process-update:file-success:{pdf_file}", flush=True)
@@ -87,8 +103,16 @@ def process_file(target_json, input_dir = "/content/INV_Dataset/", output_dir="/
         except Exception as e:
             print(f"Error processing {pdf_file}: {str(e)}")
 
+    # I CHANGE THIS : write table summary
+    if read_table:
+        table_df = pd.DataFrame(table)
+
     df = pd.DataFrame(processed_data)
-    output_path = output_dir
     df.to_excel(output_path, index=False, engine="openpyxl")
+    
+    # I CHANGE THIS : write table summary
+    if (read_table):
+        product_output_path = output_path.split('.')[0] + 'product-summary' + '.xlsx'
+        table_df.to_excel(product_output_path, index=False, engine="openpyxl")
 
     print(f"process-update:process-success:file saved", flush=True)
