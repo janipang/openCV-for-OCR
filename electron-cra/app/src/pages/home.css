@@ -14,6 +14,7 @@ section.selection {
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 section.progress {
@@ -21,6 +22,7 @@ section.progress {
   background-color: var(--white);
   height: 100%;
   box-shadow: var(--left-medium-shadow);
+  overflow: hidden;
 }
 
 .selection .form{
