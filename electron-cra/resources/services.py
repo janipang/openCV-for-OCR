@@ -42,6 +42,8 @@ def draw_only_selected_field(template_file_path, field, json_save_path, image_sa
                         json_dict["Selected_Keys"].append(x.note)
                     elif x.box_type == "Selectable_Paragraph":
                         json_dict["Selected_Indexs"].append(idx)
+                    elif x.box_type == "Selectable_Summary":
+                        json_dict["Selected_Keys"].append(x.note)
                     cv2.rectangle(display_img, x.tl, x.br, (0, 255, 0), 4)
                     text_position = (x.tl[0] - 25, x.tl[1] - 10)  # Slightly above top-left
 
@@ -73,7 +75,7 @@ def process_file(target_json, input_dir = "/content/INV_Dataset/", output_path="
 
     processed_data = []
     with open(target_json, 'r', encoding='utf-8') as file:
-        target = json.load(target)
+        target = json.load(file)
     table = []
     # I CHANGE THIS : new var
 
@@ -82,18 +84,31 @@ def process_file(target_json, input_dir = "/content/INV_Dataset/", output_path="
 
         try:
             row = []
-            print(f"Processing: {pdf_file}")
+            print(f"process-update:file-start:{pdf_file}", flush=True)
 
             d = Document(pdf_path)
 
             header_data_list = d.element["Header_Data"] if "Header_Data" in d.element else []
 
 
-            for idx, data in enumerate(header_data_list):
-                if idx + 1 in target["Selected_Indexs"]:
-                    row.append(data)
-                if data[0] in target["Selected_Keys"]:
-                    row.append(data[1])
+            print(header_data_list)
+
+            print(target["Selected_Indexs"])
+            for index in target["Selected_Indexs"]:
+                print(f"Selecting Index {index}")
+                print(f"Found {header_data_list[index - 1]}")
+                if header_data_list[index + 1]:
+                    row.append(header_data_list[index - 1])
+
+            data_dict = {k: v for item in d.element["Header_Data"] if isinstance(item, list) and len(item) == 2 for k, v in [item]}
+            print(target["Selected_Keys"])
+            for key in target["Selected_Keys"]:
+                value = data_dict.get(key)
+                print(f"Key : {key}, Value : {value}")
+                if value:
+                    row.append(value)
+                else:
+                    row.append("-")
 
             # I CHANGE THIS : write table summary
             if read_table:

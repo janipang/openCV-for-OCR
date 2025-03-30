@@ -79,13 +79,26 @@ article.scanner .progress{
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    gap: 1rem;
 }
 
 article.scanner .progress .file-list {
   display: flex;
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+article.scanner .progress .list-content {
+  display: flex;
   gap: var(--file-list-gap);
   flex-direction: column;
-  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  height: min-content;
+  max-height: 100%;
 }
 
 article.scanner .progress .small-wide-card {
@@ -160,13 +173,41 @@ article.scanner .rounded-box{
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  margin-top: 2rem;
 }
 
 article.scanner .rounded-box p{
   font-size: var(--medium-font-size);
   font-weight: var(--bold-font-weight);
   color: var(--dark-gray);
+}
+
+article.scanner .progress-success{
+  font-size: var(--medium-font-size);
+  font-weight: var(--medium-font-weight);
+  color: var(--black);
+  display: flex;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--white);
+  box-shadow: var(--left-medium-shadow);
+}
+
+article.scanner .progress-success .display-box{
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+article.scanner .progress-success .vertical-button-group{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 button.cancel{
@@ -212,4 +253,22 @@ button.success{
   border: 2px solid var(--green);
   background-color: var(--green);
   cursor: not-allowed;
+}
+
+button.small-wide-card.submit{
+  color:var(--white);
+  border: 2px solid var(--black);
+  background-color: var(--black);
+  padding: var(--small-wide-card-padding);
+  font-weight: var(--medium-font-weight);
+  width: 100%;
+}
+
+button.small-wide-card.cancel{
+  color:var(--black);
+  border: 2px solid var(--black);
+  background-color: var(--white);
+  padding: var(--small-wide-card-padding);
+  font-weight: var(--medium-font-weight);
+  width: 100%;
 }

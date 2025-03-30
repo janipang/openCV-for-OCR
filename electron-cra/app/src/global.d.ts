@@ -4,11 +4,12 @@ import Template from "./types/template";
 export interface ElectronAPI {
     copyFiles: (files: ElectronFile[]) => Promise<boolean>;
     selectDirectory: () => Promise<string | null>;
-    processFiles: (config: ProcessConfig) => Promise<boolean>;
+    processFiles: (config: ProcessConfig) => Promise<string>;
     onProcessUpdate: (callback: (data: string) => void) => void;
     removeProcessUpdateListener: () => void;
     getBackUps: () => Promise<BackUp[]>;
     openFolder: (folderPath) => Promise<boolean>;
+    openFileInFolder: (folderPath) => Promise<boolean>;
     getTemplates: () => Promise<Template[]>;
     uploadTemplate: (file: ElectronFile) => Promise<string[] | null>;
     processTemplate: () => Promise<string[] | null>;

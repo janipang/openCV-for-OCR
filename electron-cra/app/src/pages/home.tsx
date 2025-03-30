@@ -16,6 +16,7 @@ export default function HomePage() {
   const [outputFileName, setOutputFileName] = useState<string>("");
   const [tableInclude, setTableInclude] = useState<boolean>(true);
   const [message, setMessage] = useState<string>("");
+  const [resultFilePath, setResultFilePath] = useState<string>("");
   const [processStatus, setProcessStatus] = useState<"waiting"|"running"|"complete">("waiting");
 
   // file input validation
@@ -126,7 +127,17 @@ export default function HomePage() {
         template: template!,
         table_include: tableInclude,
       });
+      setResultFilePath(result);
       console.log("Message sent, received in main process:", result);
+    } catch (error) {
+      console.error("Error in sending message:", error);
+    }
+  }
+
+  async function onOpenFolder(path: string){
+    try {
+      const result = await window.electron.openFileInFolder(path);
+      console.log("openFolder sent, received in main process:", result);
     } catch (error) {
       console.error("Error in sending message:", error);
     }
@@ -280,30 +291,49 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="progress">
-          <h2 className="title">Progress</h2>
-          <div className='file-list'>
-            {inputFiles.length == 0 && 
-              <div className="rounded-box">
-                <p> No Files Selected</p>
-              </div>
-            }
-            {inputFiles.map((file, idx) => (
-              <div key={file.name} className='small-wide-card'>
-                <p className="file-name">{file.name}</p>
-                {
-                  file.status === 'selected' ? 
-                    <button className="remove" onClick={() => setInputFiles(inputFiles.filter((_, i) => i !== idx))}>
-                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
-                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
-                      </svg>
-                    </button> : 
-                    <span className={`file-status ${file.status}`} />
-                }
-              </div>
-            ))}
+
+        { !resultFilePath ?
+          <section className="progress">
+            <h2 className="title">Progress</h2>
+            <div className='file-list'>
+              {inputFiles.length == 0 ?
+                <div className="rounded-box">
+                  <p> No Files Selected</p>
+                </div>
+              :
+                <div className="list-content">
+                  {inputFiles.map((file, idx) => (
+                    <div key={file.name} className='small-wide-card'>
+                      <p className="file-name">{file.name}</p>
+                      {
+                        file.status === 'selected' ? 
+                          <button className="remove" onClick={() => setInputFiles(inputFiles.filter((_, i) => i !== idx))}>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+                              <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                            </svg>
+                          </button> : 
+                          <span className={`file-status ${file.status}`} />
+                      }
+                    </div>
+                  ))}
+                </div>
+              }   
+            </div>
+          </section>
+          :
+         <section className="progress-success">
+          <div className='display-box'>
+            <svg width="89" height="89" viewBox="0 0 89 89" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M44.5002 86.1667C49.9729 86.1734 55.3931 85.0987 60.4492 83.0044C65.5053 80.91 70.0977 77.8372 73.9627 73.9625C77.8374 70.0976 80.9102 65.5051 83.0045 60.449C85.0989 55.3929 86.1736 49.9727 86.1669 44.5C86.1736 39.0273 85.0989 33.6072 83.0045 28.551C80.9102 23.4949 77.8374 18.9025 73.9627 15.0375C70.0977 11.1628 65.5053 8.09005 60.4492 5.99567C55.3931 3.90129 49.9729 2.8266 44.5002 2.83334C39.0275 2.8266 33.6073 3.90129 28.5512 5.99567C23.4951 8.09005 18.9026 11.1628 15.0377 15.0375C11.163 18.9025 8.09023 23.4949 5.99585 28.551C3.90147 33.6072 2.82678 39.0273 2.83353 44.5C2.82678 49.9727 3.90147 55.3929 5.99585 60.449C8.09023 65.5051 11.163 70.0976 15.0377 73.9625C18.9026 77.8372 23.4951 80.91 28.5512 83.0044C33.6073 85.0987 39.0275 86.1734 44.5002 86.1667Z" stroke="black" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M27.8335 44.5L40.3335 57L65.3335 32" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p>Process Success</p>
+            <span className="vertical-button-group">
+              <button className="small-wide-card submit" onClick={()=>{onOpenFolder(resultFilePath)}}>View In Explorer</button>
+              <button className="small-wide-card cancel" onClick={()=>{onCancel()}}>New Process</button>
+            </span>
           </div>
-        </section>
+        </section> }
         {dialogOpen && <FileSelectErrorDialog handleClose={() => setDialogOpen(false)} duplicate_new_files={valid1DuplicateFiles} duplicate_new_old_files={valid2DuplicateFiles} />}
       </article>
   );

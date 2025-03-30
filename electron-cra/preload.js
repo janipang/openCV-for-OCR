@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld("electron", {
     },
     getBackUps: () => ipcRenderer.invoke('get-backups'),
     openFolder: (dirPath) => ipcRenderer.invoke('open-folder', dirPath),
+    openFileInFolder: (dirPath) => ipcRenderer.invoke('open-file-in-folder', dirPath),
     getTemplates: () => ipcRenderer.invoke('get-templates'),
     uploadTemplate: (file) => ipcRenderer.invoke("upload-template", file),
     processTemplate: () => ipcRenderer.invoke("process-template"),

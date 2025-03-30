@@ -190,7 +190,7 @@ function sanitizeFileName(str) {
 // /////////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY /////////
 // /////////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY ///////// RUN PY /////////
 
-async function runPythonProcess(input_dir, output_dir, output_file_name, selected_field) {
+async function runPythonProcess(input_dir, output_dir, output_file_name, json_field_path, table_include) {
   try {
     console.log("Running process.py...");
     activeProcesses.pyScanner = await runCommand("python", [
@@ -199,7 +199,8 @@ async function runPythonProcess(input_dir, output_dir, output_file_name, selecte
       input_dir,
       output_dir,
       output_file_name,
-      JSON.stringify(selected_field) // Convert array to JSON string
+      json_field_path,
+      table_include // Convert array to JSON string
     ], folders.base, 'pyScanner');
 
     console.log("✅ Processing completed!");
@@ -511,7 +512,7 @@ app.whenReady().then(() => {
     const outputFilePath = path.join(output_dir, output_file_name + '.xlsx')
     await runPythonProcess(folders.raw , output_dir, output_file_name, template.json_path, table_include);
     postBackUpData(name, output_file_name, start_time, folders.raw, outputFilePath, template, templateImagePath);
-    return true;
+    return outputFilePath;
   });
 
   // handle get backups
@@ -523,6 +524,13 @@ app.whenReady().then(() => {
   // handle open backup folder
   ipcMain.handle("open-folder", async (_event, folderPath) => {
     shell.openPath(folderPath);
+    console.log("/ Navigated User to File Explorer with path ", folderPath, "\n");
+    return true;
+  });
+
+  // handle open backup folder
+  ipcMain.handle("open-file-in-folder", async (_event, folderPath) => {
+    shell.showItemInFolder(folderPath);
     console.log("/ Navigated User to File Explorer with path ", folderPath, "\n");
     return true;
   });
