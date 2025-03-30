@@ -117,8 +117,19 @@ article.template section.create .upload-button {
   cursor: pointer;
 }
 
-article.template section.create img.background {
+article.template section.create div.image-slide {
   position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background-color: var(--light-gray);
+  overflow-y: scroll;
+}
+
+article.template section.create img.background {
   width: 100%;
   height: 100%;
   object-fit: cover;

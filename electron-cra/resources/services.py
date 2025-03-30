@@ -15,16 +15,17 @@ def process_file_as_sample(target, output_dir="/content/"):
         print(e)
         
 # I CHANGE THIS : params[1] + Document()
-def draw_only_selected_field(template_file_path, field, json_save_path, image_save_path, bounded_file_path):
+def draw_only_selected_field(template_file_path, field, json_save_path, image_save_dir, bounded_dir):
     print('DRAW ONLY RUNNING...')
     print('plain_png_path ', template_file_path)
     print('field ', field)
     print('json_save_path ', json_save_path)
-    print('image_save_path ', image_save_path)
-    print('bounded_file_path ', bounded_file_path)
+    print('image_save_dir ', image_save_dir)
+    print('bounded_dir ', bounded_dir)
+    # Test
     
     document = Document(template_file_path)
-    document.process_as_sample(bounded_file_path)
+    document.process_as_sample(bounded_dir)
     # I CHANGE THIS : just write file any where
     
     json_dict = {}
@@ -57,9 +58,11 @@ def draw_only_selected_field(template_file_path, field, json_save_path, image_sa
             if not np.array_equal(x.src_image, p_copy):
                 continue
             cv2.rectangle(display_img, (x.tl[0] + 2, x.tl[1] + 2), (x.br[0] - 2, x.br[1] - 2), color, 2)
+            image_save_path = os.path.join(image_save_dir, f"Selected_Field_P{p_num}.png")
+            cv2.imwrite(image_save_path, display_img)
     
     print(json_dict)
-    cv2.imwrite(image_save_path, display_img)
+    
     with open(json_save_path, 'w', encoding='utf-8') as file:
         json.dump(json_dict, file, indent=4)
         
@@ -112,7 +115,7 @@ def process_file(target_json, input_dir = "/content/INV_Dataset/", output_path="
     
     # I CHANGE THIS : write table summary
     if (read_table):
-        product_output_path = output_path.split('.')[0] + 'product-summary' + '.xlsx'
+        product_output_path = output_path.split('.')[0] + '-product-summary' + '.xlsx'
         table_df.to_excel(product_output_path, index=False, engine="openpyxl")
 
     print(f"process-update:process-success:file saved", flush=True)

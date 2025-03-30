@@ -14,6 +14,7 @@ export default function HomePage() {
   const [inputFiles, setInputFiles] = useState<FileStatus[]>([]);
   const [outputDir, setOutputDir] = useState<string>("");
   const [outputFileName, setOutputFileName] = useState<string>("");
+  const [tableInclude, setTableInclude] = useState<boolean>(true);
   const [message, setMessage] = useState<string>("");
   const [processStatus, setProcessStatus] = useState<"waiting"|"running"|"complete">("waiting");
 
@@ -35,6 +36,7 @@ export default function HomePage() {
     }
 
     loadTemplateData();
+    setTableInclude(true);
   }, []);
 
   // receive process update message
@@ -122,6 +124,7 @@ export default function HomePage() {
         output_dir: outputDir,
         name: outputFileName,
         template: template!,
+        table_include: tableInclude,
       });
       console.log("Message sent, received in main process:", result);
     } catch (error) {

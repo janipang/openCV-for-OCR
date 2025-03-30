@@ -10,14 +10,13 @@ export default function TemplatePage() {
 
   // for create new template
   const [templateName, setTemplateName] = useState<string>("");
-  const [plainTemplateImage, setPlainTemplateImage] = useState<string | null>(null);
-  const [boxedTemplateImage, setBoxedTemplateImage] = useState<string | null>(null);
-  const [templateImage, setTemplateImage] = useState<string | null>(null);
+  const [plainTemplateImage, setPlainTemplateImage] = useState<string[] | null>(null);
+  const [boxedTemplateImage, setBoxedTemplateImage] = useState<string[] | null>(null);
+  const [templateImage, setTemplateImage] = useState<string[] | null>(null);
   const [selectedField, setSelectedField] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    async function getTemplateData(){
+  
+  async function getTemplateData(){
       try {
         const result = await window.electron.getTemplates();
         console.log("copyFiles sent, received in main process:", result);
@@ -26,9 +25,14 @@ export default function TemplatePage() {
         console.error("Error in sending message:", error);
       }
     }
+
+  useEffect(() => {
     getTemplateData();
   },[]);
 
+  
+  // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
+  // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
   function ValidateTemplateName(){
     if(templateName === ""){
         alert("Please enter a template name");
@@ -36,9 +40,6 @@ export default function TemplatePage() {
     }
     return true;
   }
-
-  // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
-  // ///////////////////////////////////////////// VALIDATION ///////////////////////////////////////////////
 
   // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
   // ///////////////////////////////////////////// CREATE TEMPLATE ///////////////////////////////////////////////
@@ -109,6 +110,7 @@ export default function TemplatePage() {
       const result = await window.electron.saveTemplate(templateName, parseNumberRanges(selectedField));
       console.log("saveTemplate sent, received in main process:", result);
       alert("Template saved successfully");
+      getTemplateData();
       setStatus("viewing");
     }
     catch(error){
@@ -122,6 +124,7 @@ export default function TemplatePage() {
     setPlainTemplateImage(null);
     setTemplateImage(null);
     setSelectedField("");
+    getTemplateData();
     setStatus("viewing");
   }
 
@@ -166,7 +169,13 @@ export default function TemplatePage() {
         { status === 'selecting' && 
           <>
             <div className="upload-container">
-              {plainTemplateImage && <img className="background" src={`data:image/png;base64,${plainTemplateImage}`} />}
+              { plainTemplateImage && 
+                <div className="image-slide">
+                  { plainTemplateImage.map(imgsrc => (
+                    <img className="background" src={`data:image/png;base64,${imgsrc}`} />
+                  ))}
+                </div>
+              }
               <input
                 id="file-input"
                 type="file"
@@ -193,7 +202,13 @@ export default function TemplatePage() {
         { status === 'labeling' && 
           <>
             <div className="upload-container">
-              {boxedTemplateImage && <img className="background" src={`data:image/png;base64,${boxedTemplateImage}`} />}
+              { boxedTemplateImage && 
+                <div className="image-slide">
+                  { boxedTemplateImage.map(imgsrc => (
+                    <img className="background" src={`data:image/png;base64,${imgsrc}`} />
+                  ))}
+                </div>
+              }
               
               {loading &&
                 <svg className="loading-icon" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3">
@@ -219,7 +234,13 @@ export default function TemplatePage() {
         { status === 'confirming' && 
           <>
             <div className="upload-container">
-              {templateImage && <img className="background" src={`data:image/png;base64,${templateImage}`} />}
+              { templateImage && 
+                <div className="image-slide">
+                  { templateImage.map(imgsrc => (
+                    <img className="background" src={`data:image/png;base64,${imgsrc}`} />
+                  ))}
+                </div>
+              }
             
               {loading &&
                 <svg className="loading-icon" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3">
