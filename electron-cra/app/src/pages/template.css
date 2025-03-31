@@ -7,14 +7,17 @@ article.template {
   color: var(--black);
 }
 
-article.template.viewing {
+article.template.viewing,article.template.deleting {
   grid-template-columns: 8fr;
 }
 
-article.template section.create.viewing {
+article.template section.create.viewing{
   display: none;
 }
 
+article.template section.create.deleting {
+  display: none;
+}
 article.template section.list {
   display: flex;
   flex-direction: column;
@@ -67,9 +70,8 @@ article.template .template-list-content {
   box-sizing: border-box;
 }
 
-article.template .icon-button.create {
-  background-color: var(--dark-blue);
-  color: var(--white);
+article.template .icon-button.delete:hover {
+  background-color: var(--red-opacity-20);
 }
 
 article.template .create .text-label {
@@ -135,7 +137,7 @@ article.template section.create img.background {
   object-fit: cover;
 }
 
-article.template section.create .button-group {
+article.template .button-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--button-gap);
@@ -159,4 +161,21 @@ article.template section.create button.next,article.template section.create butt
   background-color: var(--black);
   border: 1px solid var(--black);
   color: var(--white);
+}
+
+article.template .icon-button.create {
+  background-color: var(--dark-blue);
+  color: var(--white);
+}
+
+article.template .icon-button.delete {
+  color: var(--red);
+  border: 2px solid var(--red);
+  background: inherit;
+}
+
+article.template .icon-button.complete {
+  color: var(--black);
+  border: 2px solid var(--black);
+  background: inherit;
 }

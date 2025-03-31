@@ -213,7 +213,7 @@ article.scanner .progress-success .vertical-button-group{
 }
 
 button.cancel{
-  color:var(--red);
+  color: var(--red);
   border: 2px solid var(--red);
   background-color: inherit;
 }

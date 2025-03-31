@@ -12,6 +12,7 @@ export interface ElectronAPI {
     openFolder: (folderPath) => Promise<boolean>;
     openFileInFolder: (folderPath) => Promise<boolean>;
     getTemplates: () => Promise<Template[]>;
+    deleteTemplate: (id: string) => Promise<boolean>;
     uploadTemplate: (file: ElectronFile) => Promise<string[] | null>;
     processTemplate: () => Promise<string[] | null>;
     viewFinalTemplate: (name: string, field: number[]) => Promise<string[] | null>;

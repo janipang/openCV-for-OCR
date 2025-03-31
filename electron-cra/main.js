@@ -402,6 +402,22 @@ function getRawTemplateDataById(id) {
   return null
 }
 
+function getTemplateDataById(id) {
+  const templatesFilePath = path.join(perm_folders.template.base, 'data.json');
+  const stored_data = JSON.parse(fs.readFileSync(templatesFilePath, 'utf8'));
+  const item = stored_data.find((template) => template.id === id);
+
+  if (item) {
+    if (item.image) {
+      item.image = path.join(perm_folders.template.image, item.image);
+    }
+    if (item.json_path) {
+      item.json_path = path.join(perm_folders.template.json, item.json_path);
+    }
+    return item;
+  }
+}
+
 function postTemplateData(name, image, jsonData){
   const templates = getRawTemplateData();
   const templatesFilePath = path.join(perm_folders.template.base, "data.json");
@@ -462,10 +478,23 @@ function putTemplateField(id, newField) {
   fs.writeFileSync(templatesFilePath, JSON.stringify(updatedTemplates, null, 2));
   return true;
 }
-
-function deleteTemplateataById(id) {
+/////////// not finish ///////////
+function deleteTemplateById(id) {
   const templatesFilePath = path.join(perm_folders.template.base, "data.json");
-  const templates = getRawTemplateData();
+  const templates = getRawTemplateData(id); // the thing stored
+  const template = getTemplateDataById(id); // with full path
+
+  // remove image
+  if (fs.existsSync(template.image)) {
+    fs.rmSync(template.image, { recursive: true, force: true });
+  }
+
+  // remove json
+  if (fs.existsSync(template.json)) {
+    fs.rmSync(template.json, { recursive: true, force: true });
+  }
+
+  // update data stored
   const updatedTemplates = templates.filter(item => item.id !== id);
   if (updatedTemplates.length === templates.length) {
     console.log(`❌ ไม่พบ template ที่มี id: ${id}`);
@@ -561,6 +590,12 @@ app.whenReady().then(() => {
   ipcMain.handle("get-templates", async () => {
     console.log("/ Fetched Templates Data Success\n");
     return getTemplateData();
+  });
+
+  // handle delete template
+  ipcMain.handle("delete-template", async (_event, id) => {
+    console.log("/ Delete Templates Data Success\n");
+    return deleteTemplateById(id);
   });
 
   // handle upload template

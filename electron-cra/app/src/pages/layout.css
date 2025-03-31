@@ -23,7 +23,7 @@ main {
   padding: var(--button-padding-y) var(--button-padding-x);
   box-shadow: var(--down-medium-shadow);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   gap: 10px;
   font-weight: var(--medium-font-weight);

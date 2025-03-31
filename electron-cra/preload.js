@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld("electron", {
     openFolder: (dirPath) => ipcRenderer.invoke('open-folder', dirPath),
     openFileInFolder: (dirPath) => ipcRenderer.invoke('open-file-in-folder', dirPath),
     getTemplates: () => ipcRenderer.invoke('get-templates'),
+    deleteTemplate: (id) => ipcRenderer.invoke('delete-template', id),
     uploadTemplate: (file) => ipcRenderer.invoke("upload-template", file),
     processTemplate: () => ipcRenderer.invoke("process-template"),
     viewFinalTemplate: (name, field) => ipcRenderer.invoke('view-final-template', name, field),
