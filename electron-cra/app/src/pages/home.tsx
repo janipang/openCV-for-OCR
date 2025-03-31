@@ -148,6 +148,7 @@ export default function HomePage() {
     setInputFiles([]);
     setOutputDir("");
     setOutputFileName("");
+    setResultFilePath("");
     setProcessStatus("waiting");
   }
 

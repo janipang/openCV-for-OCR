@@ -38,7 +38,7 @@ article.recent section.backup .list{
 article.recent section.backup .list-content{
   padding: 0rem var(--main-article-padding-x) var(--main-article-padding-x) var(--main-article-padding-x);
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   justify-content: flex-start;
   width: 100%;
   gap: var(--main-article-gap);
