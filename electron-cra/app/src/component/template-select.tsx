@@ -29,7 +29,9 @@ export default function TemplateSelect({
           onChange={(e) => handleTemplateChange(e.target.value)}
         >
           {templates?.map((template) => (
-            <option value={template.name}>{template.name}</option>
+            <option value={template.name}>
+              <span className="button-span">{template.name}</span>
+            </option>
           ))}
         </select>
       </span>

@@ -412,21 +412,27 @@ class Document:
                     self.element["Selectable_Field"].append(items)
                 tmp = []
                 tmp.append(child)
-                last_key = correct(extracted_text)
+                last_key = custom_spell_checker.correct(extracted_text)
                 key_value_pairs[last_key] = []
             else:
                 tmp.append(child)
+                if last_key == "เลขที่":
+                    match = re.search(r'(\d{12})', extracted_text)
+                    if match:
+                        extracted_text = f"INV{match.group(1)}"
+                        print(f"Corrected Number : {extracted_text}")
                 key_value_pairs[last_key].append(extracted_text)
 
         if not tmp == []:
-            self.element["Selectable_Field"].append(BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Split_Row"))
+            items = BoundingBox.merge_bounding_boxes(*tmp, box_type="Selectable_Split_Row")
+            items.note = last_key
+            self.element["Selectable_Field"].append(items)
 
         ret = []
 
         for key in key_value_pairs:
             key_value_pairs[key] = " ".join(key_value_pairs[key])
             ret.append([key, key_value_pairs[key]])
-
 
         return ret
 
@@ -504,7 +510,6 @@ class Document:
             tlx, tly = tl
             brx, bry = br
 
-
             k = BoundingBox(p, [tl, br], box_type="SUMMARY")
             summary_lst.append(k)
 
@@ -530,7 +535,7 @@ class Document:
                     self.element["Selectable_Field"].append(items)
                 tmp = []
                 tmp.append(child)
-                last_key = extracted_text
+                last_key = custom_spell_checker.correct(extracted_text)
                 key_value_pairs[last_key] = []
             else:
                 tmp.append(child)
@@ -547,6 +552,7 @@ class Document:
             key_value_pairs[key] = " ".join(key_value_pairs[key])
             ret.append([key, key_value_pairs[key]])
         self.element["Header_Data"].extend(ret)
+
 
     def process_as_sample(self, output_dir):
         idx = 1

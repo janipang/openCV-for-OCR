@@ -1,6 +1,31 @@
 import cv2
 import easyocr
 from pythainlp import correct
+from pythainlp.spell import NorvigSpellChecker
+import re
+
+_spell_checker = NorvigSpellChecker()
+org_dict = dict(_spell_checker.dictionary())
+dictionary = [
+    "เลขที่",
+    "วันที่",
+    "ครบกำหนด",
+    "ผู้ออกบิล",
+    "อ้างอิง",
+    "ชื่องาน",
+    "รวมเป็นเงิน",
+    "ส่วนลด",
+    "จำนวนเงินหลังหักส่วนลด",
+    "มูลค่าที่ไม่มี/ยกเว้นภาษี",
+    "มูลค่าที่คำนวณภาษี",
+    "ภาษีมูลค่าเพิ่ม 7%",
+    "จำนวนเงินรวมทั้งสิ้น"
+]
+
+for i in dictionary:
+    org_dict[i] = 999
+
+custom_spell_checker = NorvigSpellChecker(custom_dict=org_dict)
 
 reader = easyocr.Reader(['th', 'en'])
 
