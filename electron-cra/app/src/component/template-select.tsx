@@ -27,17 +27,6 @@ export default function TemplateSelect({
     <div className="template-selector selector">
       <span className="top-bar">
         <p className="field-name">Select Template</p>
-        {/* <select
-          name="template-select"
-          id="select-box"
-          onChange={(e) => handleTemplateChange(e.target.value)}
-        >
-          {templates?.map((template) => (
-            <option value={template.name}>
-              <span className="button-span">{template.name}</span>
-            </option>
-          ))}
-        </select> */}
         <div className="custom-dropdown">
           <div className="dropdown-button" onClick={() => setIsOpen(!isOpen)}>
             <p>{currentTemplate?.name}</p>
